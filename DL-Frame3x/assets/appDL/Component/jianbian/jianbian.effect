@@ -1,0 +1,75 @@
+// Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+CCEffect %{
+  techniques:
+  - passes:
+    - vert: sprite-vs:vert
+      frag: sprite-fs:frag
+      depthStencilState:
+        depthTest: false
+        depthWrite: false
+      blendState:
+        targets:
+        - blend: true
+          blendSrc: src_alpha
+          blendDst: one_minus_src_alpha
+          blendDstAlpha: one_minus_src_alpha
+      rasterizerState:
+        cullMode: none
+      properties:
+        color1:      { value: [.0, 1.0, 1.0, 1.0], editor: {type: color } }
+        color2:      { value: [1.0, .0, 1.0, 1.0], editor: {type: color } }
+        color3:      { value: [1.0, 1.0, .0, 1.0], editor: {type: color } }
+        mix1:   { value: .33, target: mixParam.x, editor: {slide : true, range : [0, 1.0] , step : 0.01 } }
+        mix2:   { value: .66, target: mixParam.y, editor: {slide : true, range : [0, 1.0] , step : 0.01 } }
+        mix3:   { value: .1, target: mixParam.z, editor: {slide : true, range : [0, 1.0] , step : 0.01 } }
+        mix4:   { value: 1.0, target: mixParam.w, editor: {slide : true, range : [0, 1.0] , step : 0.01 } }
+}%
+
+CCProgram shared-ubos %{
+  uniform Constants {
+    vec4 color1;
+    vec4 color2;
+    vec4 color3;
+    vec4 mixParam;
+  };
+}%
+
+CCProgram sprite-vs %{
+  precision mediump float;
+  #include <builtin/uniforms/cc-global>
+
+  in vec3 a_position;
+  in vec2 a_texCoord;
+  in vec4 a_color;
+  out vec2 uv0;
+  out vec4 color;
+
+  vec4 vert () {
+    vec4 pos = vec4(a_position, 1.);
+    pos = cc_matViewProj * pos;
+    uv0 = a_texCoord;
+    color = a_color;
+    return pos;
+  }
+}%
+
+CCProgram sprite-fs %{
+  precision mediump float;
+  #include <builtin/internal/embedded-alpha>
+  #include <shared-ubos>
+  in vec4 color;
+  in vec2 uv0;
+  #pragma builtin(local)
+  layout(set = 2, binding = 12) uniform sampler2D cc_spriteTexture;
+
+  vec4 frag () {
+    vec4 col = texture(cc_spriteTexture, uv0);
+    float range = mix(uv0.x,uv0.y,mixParam.z);
+    vec4 mixCol = 
+    step(range,mixParam.x)*mix(color,color1,range/mixParam.x)
+    +(step(mixParam.x,range)*step(range,mixParam.y))*mix(color1,color2,(range-mixParam.x)/(mixParam.y-mixParam.x))
+    +(step(mixParam.y,range)*step(range,1.))*mix(color2,color3,(range-mixParam.y)/(1.-mixParam.y));
+    col *= mix(color,mixCol,mixParam.w);
+    return col;
+  }
+}%

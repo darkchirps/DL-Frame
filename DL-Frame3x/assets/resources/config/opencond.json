@@ -1,0 +1,26 @@
+[
+    {
+        "id": 1,
+        "name": "home",
+        "open": "",
+        "condition1": [
+            "lv",
+            "guide"
+        ],
+        "cond1": [
+            5,
+            2
+        ],
+        "condition2": "",
+        "cond2": ""
+    },
+    {
+        "id": 2,
+        "name": "game",
+        "open": "",
+        "condition1": "",
+        "cond1": "",
+        "condition2": "",
+        "cond2": ""
+    }
+]

@@ -1,0 +1,14 @@
+{
+  /* Base configuration. Do not edit this field. */
+  "extends": "./temp/tsconfig.cocos.json",
+
+  /* Add your custom configuration here. */
+  "compilerOptions": {
+    "target": "es6", // 可以是 es6 或更高
+    "lib": [
+      "es2019",
+      "dom"
+    ],
+    "strict": false
+  }
+}

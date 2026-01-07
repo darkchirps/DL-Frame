@@ -1,0 +1,278 @@
+[
+    {
+        "id": 2,
+        "mark": "",
+        "zh": "简体中文",
+        "en": "English"
+    },
+    {
+        "id": 3,
+        "mark": "主页",
+        "zh": "开始游戏",
+        "en": "PLAY"
+    },
+    {
+        "id": 4,
+        "mark": "设置",
+        "zh": "设置",
+        "en": "OPTIONS"
+    },
+    {
+        "id": 5,
+        "mark": "",
+        "zh": "音乐",
+        "en": "Music"
+    },
+    {
+        "id": 6,
+        "mark": "",
+        "zh": "音效",
+        "en": "Sound"
+    },
+    {
+        "id": 7,
+        "mark": "",
+        "zh": "高亮自由方块",
+        "en": "Highlight Free Tiles"
+    },
+    {
+        "id": 8,
+        "mark": "",
+        "zh": "语言",
+        "en": "Language"
+    },
+    {
+        "id": 9,
+        "mark": "",
+        "zh": "继续",
+        "en": "CONTINUE"
+    },
+    {
+        "id": 10,
+        "mark": "",
+        "zh": "主页",
+        "en": "HOME"
+    },
+    {
+        "id": 11,
+        "mark": "",
+        "zh": "重玩",
+        "en": "REPLAY"
+    },
+    {
+        "id": 12,
+        "mark": "游戏页面",
+        "zh": "关卡",
+        "en": "Level"
+    },
+    {
+        "id": 13,
+        "mark": "结算页面",
+        "zh": "恭喜",
+        "en": "Congratulations!"
+    },
+    {
+        "id": 14,
+        "mark": "",
+        "zh": "下一关",
+        "en": "NEXT LEVEL"
+    },
+    {
+        "id": 15,
+        "mark": "",
+        "zh": "领取",
+        "en": "RECEIVE"
+    },
+    {
+        "id": 16,
+        "mark": "",
+        "zh": "分数",
+        "en": "Score"
+    },
+    {
+        "id": 17,
+        "mark": "道具",
+        "zh": "金币",
+        "en": "Gold"
+    },
+    {
+        "id": 18,
+        "mark": "",
+        "zh": "提示",
+        "en": "HINT"
+    },
+    {
+        "id": 19,
+        "mark": "",
+        "zh": "洗牌",
+        "en": "SHUFFLE"
+    },
+    {
+        "id": 20,
+        "mark": "",
+        "zh": "脸谱",
+        "en": "FACE"
+    },
+    {
+        "id": 21,
+        "mark": "",
+        "zh": "炸弹",
+        "en": "BOMB"
+    },
+    {
+        "id": 22,
+        "mark": "",
+        "zh": "撤回",
+        "en": "UNDO"
+    },
+    {
+        "id": 23,
+        "mark": "金币补充",
+        "zh": "金币不足？",
+        "en": "NO COINS?"
+    },
+    {
+        "id": 24,
+        "mark": "",
+        "zh": "你想购买提示吗？",
+        "en": "Do you want to buy HINT?"
+    },
+    {
+        "id": 25,
+        "mark": "",
+        "zh": "你想购买洗牌吗？",
+        "en": "Do you want to buy SHUFFLE?"
+    },
+    {
+        "id": 26,
+        "mark": "",
+        "zh": "你想购买脸谱吗？",
+        "en": "Do you want to buy FACE?"
+    },
+    {
+        "id": 27,
+        "mark": "",
+        "zh": "你想购买炸弹吗？",
+        "en": "Do you want to buy BOMB?"
+    },
+    {
+        "id": 28,
+        "mark": "",
+        "zh": "你想购买撤回吗？",
+        "en": "Do you want to buy UNDO?"
+    },
+    {
+        "id": 29,
+        "mark": "道具引导",
+        "zh": "如果卡关，可以使用提示和洗牌帮助你通关，本关可无限次使用",
+        "en": "If you get stuck, you can use the SHUFFLE HINT to help you, this level can be used unlimited times"
+    },
+    {
+        "id": 30,
+        "mark": "",
+        "zh": "脸谱随机将3对麻将块变为脸谱麻将块，本关可无限次使用",
+        "en": "FACE can randomly changes 3 pairs of tiles into face tiles, this level can be used unlimited times"
+    },
+    {
+        "id": 31,
+        "mark": "",
+        "zh": "炸弹可以消除3对自由方块，本关可无限次使用",
+        "en": "BOMB clears 3 pairs of free tiles,this level can be used unlimited times"
+    },
+    {
+        "id": 32,
+        "mark": "",
+        "zh": "撤回可以撤回上一步的操作，本关可无限次使用",
+        "en": "UNDO cancels the last move,this level can be used unlimited times"
+    },
+    {
+        "id": 33,
+        "mark": "无有效匹配",
+        "zh": "无有效匹配",
+        "en": "NO VALID MATCH"
+    },
+    {
+        "id": 34,
+        "mark": "玩法引导",
+        "zh": "匹配两个相同的牌",
+        "en": "Match two of the same tile"
+    },
+    {
+        "id": 35,
+        "mark": "",
+        "zh": "将顶层牌配对来解锁其他牌",
+        "en": "Match the top tiles to unlock other tiles"
+    },
+    {
+        "id": 36,
+        "mark": "",
+        "zh": "将边上的牌配对来解锁其他牌",
+        "en": "Match the tiles on the side to unlock other tiles"
+    },
+    {
+        "id": 37,
+        "mark": "花牌引导",
+        "zh": "花朵牌：每朵花都可以与任何其他画搭配",
+        "en": "Flower Tiles：Each flower can be matched with any other flower"
+    },
+    {
+        "id": 38,
+        "mark": "",
+        "zh": "被左右锁住",
+        "en": "Locked by left and right"
+    },
+    {
+        "id": 39,
+        "mark": "",
+        "zh": "被上方的牌锁住了",
+        "en": "Locked by above tiles"
+    },
+    {
+        "id": 40,
+        "mark": "",
+        "zh": "可匹配的牌已突出显示",
+        "en": "Matchable tiles highlighted"
+    },
+    {
+        "id": 41,
+        "mark": "",
+        "zh": "免费",
+        "en": "FREE"
+    },
+    {
+        "id": 42,
+        "mark": "",
+        "zh": "确定",
+        "en": "Confirm"
+    },
+    {
+        "id": 43,
+        "mark": "返回",
+        "zh": "返回",
+        "en": "BACK"
+    },
+    {
+        "id": 44,
+        "mark": "",
+        "zh": "待解锁",
+        "en": "Locked"
+    },
+    {
+        "id": 45,
+        "mark": "时间用尽",
+        "zh": "时间用尽",
+        "en": "TIME OUT"
+    },
+    {
+        "id": 46,
+        "mark": "失败弹窗",
+        "zh": "你失败了",
+        "en": "YOU LOSE"
+    },
+    {
+        "id": 47,
+        "mark": "退出弹窗",
+        "zh": "退出关卡？",
+        "en": "QUIT LEVEL？"
+    }
+]

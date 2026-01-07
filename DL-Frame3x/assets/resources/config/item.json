@@ -1,0 +1,80 @@
+[
+    {
+        "id": 1,
+        "mark": "金币",
+        "name": 17,
+        "des": 23,
+        "cost": -1,
+        "num": -1,
+        "unlock": -1,
+        "default": 200,
+        "pic": "ui_prop_1",
+        "rank": -1,
+        "guide": -1
+    },
+    {
+        "id": 2,
+        "mark": "提示",
+        "name": 18,
+        "des": 24,
+        "cost": 200,
+        "num": 3,
+        "unlock": 2,
+        "default": 3,
+        "pic": "ui_prop_2",
+        "rank": 1,
+        "guide": 29
+    },
+    {
+        "id": 3,
+        "mark": "洗牌",
+        "name": 19,
+        "des": 25,
+        "cost": 250,
+        "num": 3,
+        "unlock": 2,
+        "default": 3,
+        "pic": "ui_prop_3",
+        "rank": 2,
+        "guide": 29
+    },
+    {
+        "id": 4,
+        "mark": "脸谱",
+        "name": 20,
+        "des": 26,
+        "cost": 300,
+        "num": 3,
+        "unlock": 3,
+        "default": 3,
+        "pic": "ui_prop_4",
+        "rank": 3,
+        "guide": 30
+    },
+    {
+        "id": 5,
+        "mark": "炸弹",
+        "name": 21,
+        "des": 27,
+        "cost": 350,
+        "num": 3,
+        "unlock": 4,
+        "default": 3,
+        "pic": "ui_prop_5",
+        "rank": 4,
+        "guide": 31
+    },
+    {
+        "id": 6,
+        "mark": "撤回",
+        "name": 22,
+        "des": 28,
+        "cost": 300,
+        "num": 3,
+        "unlock": 5,
+        "default": 3,
+        "pic": "ui_prop_6",
+        "rank": 5,
+        "guide": 32
+    }
+]

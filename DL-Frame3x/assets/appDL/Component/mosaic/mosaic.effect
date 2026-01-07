@@ -1,0 +1,59 @@
+// Effect Syntax Guide: https://docs.cocos.com/creator/manual/zh/shader/index.html
+
+CCEffect %{
+  techniques:
+  - name: opaque
+    passes:
+    - vert: legacy/main-functions/general-vs:vert # builtin header
+      frag: unlit-fs:frag
+      properties: &props
+        mainTexture:    { value: white }
+        mainColor:      { value: [1, 1, 1, 1], editor: { type: color } }
+        pixelSize:      { value: 0.5, editor: { slide : true, range : [0.01,1], step: 0.01 } }
+  - name: transparent
+    passes:
+    - vert: general-vs:vert # builtin header
+      frag: unlit-fs:frag
+      blendState:
+        targets:
+        - blend: true
+          blendSrc: src_alpha
+          blendDst: one_minus_src_alpha
+          blendSrcAlpha: src_alpha
+          blendDstAlpha: one_minus_src_alpha
+      properties: *props
+}%
+
+
+
+
+CCProgram unlit-fs %{
+  precision highp float;
+  #include <legacy/output>
+  #include <legacy/fog-fs>
+
+  in vec2 v_uv;
+  in vec3 v_position;
+
+  uniform sampler2D mainTexture;
+
+  uniform Constant {
+    vec4 mainColor;
+    float pixelSize;
+  };
+
+  vec2 downsampling(vec2 v_uv) {
+    float block_size = 0.1 * pixelSize;
+    float block_x_idx = floor(v_uv.x / block_size);
+    float block_y_idx = floor(v_uv.y / block_size);
+
+    return vec2(block_size * (block_x_idx + 0.5), block_size * (block_y_idx + 0.5));
+  }
+
+  vec4 frag () {
+    vec2 down_uv = downsampling(v_uv);
+    vec4 col = mainColor * texture(mainTexture, down_uv);
+    
+    return CCFragOutput(col);
+  }
+}%

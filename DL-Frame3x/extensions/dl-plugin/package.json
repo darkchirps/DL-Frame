@@ -1,0 +1,83 @@
+{
+    "$schema": "./@types/schema/package/index.json",
+    "package_version": 2,
+    "name": "dl-plugin",
+    "version": "1.0.0",
+    "author": "DarkLin",
+    "editor": ">=3.8.6",
+    "scripts": {
+        "preinstall": "node ./scripts/preinstall.js",
+        "build": "tsc",
+        "watch": "tsc -w"
+    },
+    "description": "i18n:dl-plugin.description",
+    "main": "./dist/main.js",
+    "devDependencies": {
+        "@cocos/creator-types": "^3.8.6",
+        "@types/node": "^18.17.1",
+        "typescript": "^5.8.2"
+    },
+    "contributions": {
+        "hierarchy": {
+            "menu": {
+                "methods": "./dist/menu/hierarchy-menu.js",
+                "createMenu": "onCreateMenu",
+                "nodeMenu": "onNodeMenu",
+                "rootMenu": "onRootMenu"
+            }
+        },
+        "assets": {
+            "menu": {
+                "methods": "./dist/menu/assets-menu.js",
+                "createMenu": "onCreateMenu",
+                "assetMenu": "onAssetMenu",
+                "dbMenu": "onDbMenu",
+                "panelMenu": "onPanelMenu"
+            }
+        },
+        "menu": [
+            {
+                "path": "i18n:dl-plugin.main_name",
+                "label": "i18n:dl-plugin.update_spr",
+                "message": "update_spr"
+            },
+            {
+                "path": "i18n:dl-plugin.main_name",
+                "label": "i18n:dl-plugin.update_pre",
+                "message": "update_pre"
+            },
+            {
+                "path": "i18n:dl-plugin.main_name",
+                "label": "i18n:dl-plugin.update_conf",
+                "message": "update_conf"
+            },
+            {
+                "path": "i18n:dl-plugin.main_name",
+                "label": "i18n:dl-plugin.update_mp3",
+                "message": "update_mp3"
+            }
+        ],
+        "messages": {
+            "update_spr": {
+                "methods": [
+                    "update_spr"
+                ]
+            },
+            "update_pre": {
+                "methods": [
+                    "update_pre"
+                ]
+            },
+            "update_conf": {
+                "methods": [
+                    "update_conf"
+                ]
+            },
+            "update_mp3": {
+                "methods": [
+                    "update_mp3"
+                ]
+            }
+        }
+    }
+}
