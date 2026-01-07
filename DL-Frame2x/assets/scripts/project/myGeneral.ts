@@ -47,7 +47,6 @@ class mygeneralMgr {
 
         UIMgr.ui.loading.once("remove", () => {
             console.log(`%c ===== 当前状态 ===== ${myC.deepUserId == 2 ? "深链" : "非深链"}`, "color:#FF00EB; font-size: 18px;");
-            this.preloadFunc();
         }).show();
         G.event.on(Gvent.NodeClick, (node) => {
             // if (C.soundSwitch) G.mp3.click.playEffect(false);
@@ -71,23 +70,6 @@ class mygeneralMgr {
                 Tip.show(`深链状态发生改变,请重启游戏,当前状态:${myC.deepUserId == 2 ? "深链" : "非深链"}`);
                 console.log(`%c 深链状态发生改变,请重启游戏,当前状态:${myC.deepUserId == 2 ? "深链" : "非深链"}`, "color:#FF00EB; font-size: 18px;");
                 break;
-        }
-    }
-    /**提前加载图 单线操作 一张加载完后再加载下一张*/
-    public static async preloadFunc() {
-        common.initGallery();
-        common.initPicbag();
-        this.preloadPicbag();
-    }
-    /**预加载图包/视频包*/
-    public static async preloadPicbag() {
-        for (let k in common.picbagList) {
-            let confAll = common.picbagList[k];
-            for (let i = 0; i < confAll.length; i++) {
-                let conf = confAll[i];
-                if (conf.pic) await G.asset.getBinMgr(conf.pic, true);
-                if (conf.resType == 2) await G.asset.getMp4Mgr(conf.pic, true);
-            }
         }
     }
 }

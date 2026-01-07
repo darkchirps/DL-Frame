@@ -25,7 +25,7 @@ if (!Object.getOwnPropertyDescriptor(cc.Node.prototype, "nodes")) {
                     this.attr(_cache);
                 }
                 return this.nodesCache;
-            },
+            }
         },
         string: {
             get(this: cc.Node) {

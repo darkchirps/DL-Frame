@@ -5,7 +5,7 @@
       "es2020",
       "dom"
     ],
-    "target": "es2020",
+    "target": "es2015",
     "experimentalDecorators": true,
     "skipLibCheck": true,
     "outDir": "temp/vscode-dist",
