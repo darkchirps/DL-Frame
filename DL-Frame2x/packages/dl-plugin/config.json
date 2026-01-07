@@ -1,0 +1,10 @@
+{
+    "sprName": "assets/scripts/ui",
+    "preName": "assets/ui",
+    "confName": [
+        "/assets/resources/config"
+    ],
+    "mp3Name": [
+        "/assets/resources/audio"
+    ]
+}

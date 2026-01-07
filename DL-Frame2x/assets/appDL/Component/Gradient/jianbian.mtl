@@ -1,0 +1,39 @@
+{
+  "__type__": "cc.Material",
+  "_name": "jianbian",
+  "_objFlags": 0,
+  "_native": "",
+  "_effectAsset": {
+    "__uuid__": "ae73f613-7ef8-4f89-bf1e-22967d287f99"
+  },
+  "_techniqueIndex": 0,
+  "_techniqueData": {
+    "0": {
+      "props": {
+        "beginColor": {
+          "__type__": "cc.Color",
+          "r": 255,
+          "g": 255,
+          "b": 255,
+          "a": 255
+        },
+        "endColor": {
+          "__type__": "cc.Color",
+          "r": 255,
+          "g": 255,
+          "b": 255,
+          "a": 255
+        }
+      },
+      "defines": {
+        "USE_TEXTURE": true,
+        "USE_COLOR": true,
+        "IS_VERTICAL": true,
+        "IS_DYNAMIC": false,
+        "USE_DYNAMIC": false,
+        "IS_HORIZONTAL": false,
+        "USE_ALPHA_TEST": false
+      }
+    }
+  }
+}

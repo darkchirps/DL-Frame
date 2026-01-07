@@ -1,0 +1,22 @@
+{
+  "name": "dl-plugin",
+  "version": "1.0.3",
+  "description": "The package template for getting started.",
+  "author": "DarkLin",
+  "qq": 1453947459,
+  "main": "main.js",
+  "main-menu": {
+    "工作台/更新脚本提示": {
+      "message": "dl-plugin:update_spr"
+    },
+    "工作台/更新节点提示": {
+      "message": "dl-plugin:update_pre"
+    },
+    "工作台/更新配置提示": {
+      "message": "dl-plugin:update_conf"
+    },
+    "工作台/更新音频提示": {
+      "message": "dl-plugin:update_mp3"
+    }
+  }
+}

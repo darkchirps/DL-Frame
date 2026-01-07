@@ -1,0 +1,26 @@
+{
+  "name": "toolkit-plugin",
+  "version": "1.0.2",
+  "description": "常用工具集.",
+  "author": "DarkLin",
+  "qq": 1453947459,
+  "main": "main.js",
+  "main-menu": {
+    "工具集/表格转json": {
+      "message": "toolkit-plugin:open_jsonChange"
+    },
+    "工具集/表格转bin": {
+      "message": "toolkit-plugin:open_binChange"
+    },
+    "工具集/视频转bin": {
+      "message": "toolkit-plugin:open_videoToBin"
+    },
+    "工具集/图片转bin": {
+      "message": "toolkit-plugin:picToBin"
+    }
+  },
+  "dependencies": {
+    "electron": "^25.0.0",
+    "xlsx": "^0.18.5"
+  }
+}

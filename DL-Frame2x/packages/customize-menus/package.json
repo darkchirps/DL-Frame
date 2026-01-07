@@ -1,0 +1,15 @@
+{
+  "name": "customize-menus",
+  "version": "0.0.1",
+  "description": "自定义二级菜单.",
+  "author": "Cocos Creator",
+  "main": "main.js",
+  "main-menu": {
+    "i18n:MAIN_MENU.package.title/textPro/open": {
+      "message": "textPro:open"
+    },
+    "i18n:MAIN_MENU.package.title/textPro/hello": {
+      "message": "textPro:say-hello"
+    }
+  }
+}
