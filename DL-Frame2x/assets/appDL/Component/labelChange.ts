@@ -3,7 +3,7 @@
 *******************************************************************************/
 const { ccclass, property, menu } = cc._decorator;
 @ccclass
-@menu("常用组件/labelChange")
+@menu("常用组件/数值滚动")
 export default class labelChange extends cc.Label {
     @property({ tooltip: "默认为每帧都改变" })
     private frameNum: number = 1;

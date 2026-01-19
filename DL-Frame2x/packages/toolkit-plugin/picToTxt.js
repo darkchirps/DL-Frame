@@ -5,7 +5,7 @@ const txtPath = require("./config.json").txtPath;
 const txtLock = require("./config.json").txtLock;
 const floderName = "txt"
 
-function changeTxtFunc(pathStr) {
+function picToTxtFunc(pathStr) {
     txtPath.forEach((p) => {
         if (!(0, fs.existsSync)((0, path.join)(p, floderName))) {
             (0, fs.mkdirSync)((0, path.join)(p, floderName));
@@ -54,4 +54,4 @@ function processImageFile(filePath, fileName) {
     Editor.log(`已转换: ${outputFileName}`);
 }
 
-exports.changeTxtFunc = changeTxtFunc;
+exports.picToTxtFunc = picToTxtFunc;

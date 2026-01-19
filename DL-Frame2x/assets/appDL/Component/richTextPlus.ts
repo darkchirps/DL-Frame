@@ -31,7 +31,7 @@ const PREFAB_MAX_LENGTH = 16;
 const { ccclass, property, executeInEditMode, menu } = cc._decorator;
 @ccclass
 @executeInEditMode
-@menu('常用组件/richTextPlus')
+@menu('常用组件/富文本')
 export default class richTextPlus extends cc.Component {
     @property
     private _string: string = '';

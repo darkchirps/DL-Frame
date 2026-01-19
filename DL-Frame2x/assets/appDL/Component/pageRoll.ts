@@ -1,7 +1,10 @@
+/*******************************************************************************
+ * 描述:    节点上挂载 页面循环滚动
+*******************************************************************************/
 const { ccclass, property, menu, executionOrder } = cc._decorator;
 
 @ccclass
-@menu('常用组件/pageRoll')
+@menu('常用组件/页面循环滚动')
 @executionOrder(-100)
 export default class PageRoll extends cc.Component {
     @property({ type: cc.Integer, displayName: "初始id" })

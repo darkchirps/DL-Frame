@@ -33,15 +33,6 @@ class NodePoolMgr {
         if (!this.nodePool.get(p)) return 0;
         return this.nodePool.get(p).size();
     }
-    /**根据预制名创建节点返回*/
-    static creatorNode(preName: string): cc.Node {
-        if (Pool.getPoolSize(preName) != 0) {
-            return Pool.getPoolName(preName);
-        } else {
-            let pre = common.preArr.get(preName);
-            return Pool.getPoolName(preName, pre);
-        }
-    }
 }
 
 export enum poolType {

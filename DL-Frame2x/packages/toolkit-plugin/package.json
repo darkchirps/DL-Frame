@@ -12,8 +12,8 @@
     "工具集/表格转bin": {
       "message": "toolkit-plugin:open_binChange"
     },
-    "工具集/视频转bin": {
-      "message": "toolkit-plugin:open_videoToBin"
+    "工具集/图片转txt": {
+      "message": "toolkit-plugin:picToTxt"
     },
     "工具集/图片转bin": {
       "message": "toolkit-plugin:picToBin"

@@ -2,8 +2,6 @@
  * 描述:    远程资源管理
 *******************************************************************************/
 
-import UIMgr from "./UIMgr";
-
 // 加载状态枚举
 export enum LoadType {
     INIT,
@@ -154,55 +152,6 @@ export default class AssetRemoteMgr {
         }
     }
 
-    /**
-     * 批量加载资源
-     */
-    public async loadAssetsBatch(assets: Array<{ url: string, name: string }>, onProgress?: (loaded: number, total: number) => void): Promise<any[]> {
-        const total = assets.length;
-        let loaded = 0;
-
-        const results: any[] = new Array(total);
-        const promises = assets.map((asset, index) => {
-            return this.loadAssetRemote(asset.url, asset.name)
-                .then(data => {
-                    results[index] = data;
-                    loaded++;
-                    onProgress && onProgress(loaded, total);
-                    return data;
-                })
-                .catch(error => {
-                    console.error(`Failed to load asset ${asset.name}:`, error);
-                    results[index] = null;
-                    loaded++;
-                    onProgress && onProgress(loaded, total);
-                    throw error;
-                });
-        });
-
-        return Promise.allSettled(promises).then(() => results);
-    }
-
-    /**
-     * 获取统计信息
-     */
-    public getStats(): { total: number; loaded: number; loading: number; failed: number; } {
-        const stats = { total: 0, loaded: 0, loading: 0, failed: 0 };
-        Object.values(this.assetsRemoteInfo).forEach(assetInfo => {
-            stats.total++;
-            switch (assetInfo.loadState) {
-                case LoadType.LOADOVER:
-                    stats.loaded++;
-                    break;
-                case LoadType.LOADING:
-                    stats.loading++;
-                    break;
-                case LoadType.FAILED:
-                    stats.failed++;
-                    break;
-            }
-        });
-        return stats;
-    }
 }
 
 // 全局实例

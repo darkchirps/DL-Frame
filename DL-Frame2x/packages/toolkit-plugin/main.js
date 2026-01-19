@@ -45,18 +45,18 @@ module.exports = {
         console.log('表格转bin选择文件夹失败');
       });
     },
-    'open_videoToBin'(event) {
+    'picToTxt'(event, data) {
       dialog.showOpenDialog({
         properties: ['openDirectory']
-      }).then((result) => {
+      }).then(result => {
         if (!result.canceled && result.filePaths.length > 0) {
           const pathTo = result.filePaths[0];
-          const toBin = require("./videoToBin");
-          toBin.processVideosFunc(pathTo);
-          console.log('---------------------------视频转bin完成---------------------------');
+          const convert = require("./picToTxt");
+          Editor.log('开始图片转换bin');
+          convert.picToTxtFunc(pathTo)
         }
-      }).catch((err) => {
-        console.log('表格转bin选择文件夹失败');
+      }).catch(err => {
+        Editor.log('转换失败');
       });
     },
     'picToBin'(event, data) {

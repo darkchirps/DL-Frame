@@ -3,7 +3,7 @@
 *******************************************************************************/
 const { ccclass, property, menu } = cc._decorator;
 @ccclass
-@menu("常用组件/listSpfs")
+@menu("常用组件/图片切换")
 export default class listSpfs extends cc.Component {
 
   @property(cc.SpriteFrame)

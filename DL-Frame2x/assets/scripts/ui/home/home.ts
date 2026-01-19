@@ -2,6 +2,7 @@ import UIMgr from '../../../appDL/Manager/UIMgr';
 import UIScr from '../../../appDL/Manager/UIScr';
 import { UIClass } from '../../../appDL/Manager/UIClass';
 import { homePopupMgr } from './homePopupMgr';
+import list from '../../../appDL/Component/ListPlus/list';
 const { ccclass, property } = cc._decorator;
 
 @ccclass
@@ -18,16 +19,15 @@ export class home extends UIScr {
         this.btnManager();
     }
     showUi() {
-       
+
     }
     btnManager() {
-       
+
     }
 }
 UIMgr.register(new UIClass({
     ID: "home",
     parfabPath: "home",
     group: "core",
-    fullScreen: true,
-    diamond: true,
+    fullScreen: true
 }));

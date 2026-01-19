@@ -61,21 +61,21 @@ export class UIClass {
     }
     /**钻石状态栏*/
     changeDiamondState(state: boolean) {
-        if (this.uiConfig.diamond) {
+        if (this.uiConfig.currency) {
             if (state) {//显示
-                G.main.diamondHaveName.push(this.uiConfig.ID);
-                G.main.diamondNode.parent = this.node;
-                G.main.diamondNode.active = true;
+                G.main.CurrencyHaveName.push(this.uiConfig.ID);
+                G.main.CurrencyNode.parent = this.node;
+                G.main.CurrencyNode.active = true;
             } else {
-                const index = G.main.diamondHaveName.indexOf(this.uiConfig.ID);
+                const index = G.main.CurrencyHaveName.indexOf(this.uiConfig.ID);
                 if (index > -1) {
-                    G.main.diamondHaveName.splice(index, 1);
+                    G.main.CurrencyHaveName.splice(index, 1);
                 }
-                if (G.main.diamondHaveName.length == 0) {
-                    G.main.diamondNode.parent = G.main.other;
-                    G.main.diamondNode.active = false;
+                if (G.main.CurrencyHaveName.length == 0) {
+                    G.main.CurrencyNode.parent = G.main.other;
+                    G.main.CurrencyNode.active = false;
                 } else {
-                    G.main.diamondNode.parent = UIMgr.get(G.main.diamondHaveName[0]).node;
+                    G.main.CurrencyNode.parent = UIMgr.get(G.main.CurrencyHaveName[0]).node;
                 }
             }
         }
@@ -104,7 +104,7 @@ export class UIClass {
         UIMgr.onUIRemove(this);
         this.event.emit("remove");
         this.event.clear();
-        // G.asset.decRefByTag(this.uiConfig.ID);
+        G.asset.decRefByTag(this.uiConfig.ID);
     }
     /**
      * 设置该UI的父节点，在show之前调用
@@ -122,12 +122,8 @@ export class UIClass {
     /** 创建界面 */
     async _instantiate() {
         this.status = UIStatus.OPENING;
-        let prefab: cc.Prefab = common.preArr.get(this.uiConfig.ID);
         G.main.loadingNode.active = true;
-        if (!prefab) {
-            prefab = await G.asset.getPrefab(bundleType.ui, this.uiConfig.parfabPath + "/" + this.uiConfig.ID, this.uiConfig.ID);
-            common.preArr.set(this.uiConfig.ID, prefab);
-        }
+        let prefab: cc.Prefab = await G.asset.getPrefab(bundleType.ui, this.uiConfig.parfabPath + "/" + this.uiConfig.ID, this.uiConfig.ID);
         //@ts-ignore
         if (!prefab || this.status === UIStatus.REMOVING || this.status === UIStatus.REMOVED) return console.log("UI实例化失败");
         // 实例化节点
@@ -178,8 +174,8 @@ export type UIConfig = {
     parfabPath?: string;
     /**全屏*/
     fullScreen?: boolean;
-    /**显示钻石栏*/
-    diamond?: boolean;
+    /**显示货币栏*/
+    currency?: boolean;
     /**页面打开关闭动画*/
     animBool?: boolean;
     /**组别 同组情况下只会显示最新打开的*/

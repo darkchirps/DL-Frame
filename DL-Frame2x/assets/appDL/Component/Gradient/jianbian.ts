@@ -4,7 +4,7 @@
 const { ccclass, property, menu, executeInEditMode } = cc._decorator;
 
 @ccclass
-@menu("常用组件/jianbian")
+@menu("常用组件/文本图片渐变")
 export default class jianbian extends cc.Component {
     @property({ displayName: "材质", type: cc.Material }) material: cc.Material = null;
 

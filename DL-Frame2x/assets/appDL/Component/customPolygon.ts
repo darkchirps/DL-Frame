@@ -5,7 +5,7 @@
 const { ccclass, property, menu } = cc._decorator;
 
 @ccclass
-@menu('常用组件/customPolygon')
+@menu('常用组件/多边形图')
 export default class customPolygon extends cc.RenderComponent {
     @property({ type: cc.SpriteAtlas, visible: false, serializable: false, readonly: true, displayName: CC_DEV && 'Atlas' })
     private atlas: cc.SpriteAtlas = null;

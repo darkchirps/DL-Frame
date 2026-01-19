@@ -1,6 +1,5 @@
 import platformMgr, { AdScene, EventType } from '../../project/platformMgr';
 import { AdsType } from '../../project/mySystemEnum';
-import { propType } from '../../project/myGameEnum';
 import AudioMgr from '../../../appDL/Manager/AudioMgr';
 import ConfigMgr from '../../../appDL/Manager/ConfigMgr';
 import { bundleType, UIClass } from '../../../appDL/Manager/UIClass';
@@ -11,7 +10,7 @@ import { TaskQueue } from '../../../appDL/System/TaskQueue';
 const { ccclass, property } = cc._decorator;
 
 const loadArr: { bundleName: string; dir: string }[] = [
-    
+    { bundleName: "ui", dir: "" }
 ];
 
 @ccclass
@@ -29,13 +28,10 @@ export class loading extends UIScr {
             this.loadStep++;
         };
         this.setupLoadingQueue();
-        platformMgr.getSkuDetails();
         this.loadBundleOver(() => {
             this.loadStep++;
         });
-        this.deepInitFunc(() => {
-            this.loadStep++;
-        });
+        this.loadStep++;
     }
     private setupLoadingQueue() {
         this.taskQueue.add(() => this.loadConfig(), '加载bin配置文件');
@@ -57,34 +53,12 @@ export class loading extends UIScr {
         });
     }
 
-    /**深链初始化*/
-    deepInitFunc(callback?: Function) {
-        if (myC.deepUserId == 0) {
-            const onCheckDeep = () => {
-                if (myC.deepUserId != 0) {
-                    this.unschedule(onCheckDeep);
-                    callback && callback();
-                }
-            }
-            this.schedule(onCheckDeep, 0.1, cc.macro.REPEAT_FOREVER);
-        } else {
-            callback && callback();
-        }
-    }
     enterFunc() {
-        console.log((G.time - G.gameTime) / 1000, "进入游戏时间");
         platformMgr.showAd(AdsType.AT_Banner_Bottom, AdScene.BA_001);
         if (C.languageId == '') {
             C.languageId = myG.languageId != '' ? myG.languageId : 'en';
         }
-        if (myC.firstGame) {
-            UIMgr.ui.home.show();
-        } else {
-            for (let i = propType.diamond; i <= propType.deflasking; i++) {
-                let conf = G.config.item.get(i);
-            }
-            myC.firstGame = true;
-        }
+        UIMgr.ui.home.show();
     }
     update(dt: number): void {
         if (this.loadStep == -1) return;

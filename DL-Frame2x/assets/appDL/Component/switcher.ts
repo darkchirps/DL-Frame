@@ -54,7 +54,7 @@ export class StateDataWrapper {
 }
 
 @ccclass
-@menu("常用组件/switcher")
+@menu("常用组件/状态切换器")
 @executeInEditMode()
 export default class switcher extends cc.Component {
 

@@ -42,28 +42,73 @@ class GeneralX {
         return cc.js.formatStr(txt, ...subst);
     }
     /**
-     * 将一个>0的秒数转换为"y-m-d h:mm:s 格式
-     * @param time 秒
-     * @param fmtStr 时间格式
+     * 将一个>0的秒数（时长）转换为指定格式的字符串
+     * 支持的格式占位符：y(年)、m(月)、d(天)、h(小时)、mm(分钟)、s(秒)
+     * 特殊处理：天数会自动拼接字母"d"，如7天展示为"7d"
+     * @param time 秒数（时长，>0）
+     * @param fmtStr 时间格式，默认 "y-m-d h:mm:s"
      */
     public static timetostr(time: number, fmtStr = "y-m-d h:mm:s") {
-        let h: any, mm: any, s: any, y: any, m: any, d: any;
-        var t = new Date(time * 1000);
-        y = t.getFullYear();
-        m = t.getMonth() + 1;
-        d = t.getDate();
-        h = t.getHours();
-        mm = t.getMinutes();
-        s = t.getSeconds();
-        if (mm < 10) mm = "0" + mm;
-        if (s < 10) s = "0" + s;
-        fmtStr = fmtStr.replace(/y/gi, y);
-        fmtStr = fmtStr.replace(/mm/gi, mm);
-        fmtStr = fmtStr.replace(/m/gi, m);
-        fmtStr = fmtStr.replace(/d/gi, d);
-        fmtStr = fmtStr.replace(/h/gi, h);
-        fmtStr = fmtStr.replace(/s/gi, s);
-        return fmtStr;
+        // 校验输入，确保秒数大于0
+        if (time <= 0) {
+            return "0d 00:00:00"; // 输入不合法时返回默认空时长（保持格式统一）
+        }
+
+        let remaining = time;
+        // 定义各时间单位的秒数换算
+        const YEAR_SEC = 365 * 24 * 60 * 60;
+        const MONTH_SEC = 30 * 24 * 60 * 60; // 简化为每月30天
+        const DAY_SEC = 24 * 60 * 60;
+        const HOUR_SEC = 60 * 60;
+        const MIN_SEC = 60;
+
+        // 计算各时间单位的数值
+        const y = Math.floor(remaining / YEAR_SEC).toString();
+        remaining = remaining % YEAR_SEC;
+
+        const m = Math.floor(remaining / MONTH_SEC).toString();
+        remaining = remaining % MONTH_SEC;
+
+        // 天数计算后拼接字母"d"
+        const dNum = Math.floor(remaining / DAY_SEC);
+        const d = `${dNum}d`; // 核心调整：天数后加"d"
+        remaining = remaining % DAY_SEC;
+
+        const h = Math.floor(remaining / HOUR_SEC).toString();
+        remaining = remaining % HOUR_SEC;
+
+        const mmNum = Math.floor(remaining / MIN_SEC);
+        const sNum = Math.floor(remaining % MIN_SEC);
+
+        // 补零处理：强制转为字符串，确保类型统一为string
+        const padMM: string = mmNum < 10 ? `0${mmNum}` : mmNum.toString();
+        const padS: string = sNum < 10 ? `0${sNum}` : sNum.toString();
+
+        // 替换格式字符串中的占位符（所有替换值都是string类型）
+        let result = fmtStr
+            .replace(/y/gi, y)
+            .replace(/mm/gi, padMM) // 先替换分钟（mm）
+            .replace(/m/gi, m)      // 再替换月份（m）
+            .replace(/d/gi, d)      // 替换为带"d"的天数（如7d）
+            .replace(/h/gi, h)
+            .replace(/s/gi, padS);
+
+        return result;
+    }
+    /**数值格式化*/
+    public static formatValue(n: number) {
+        //策划要求保留一位小数，直接向下取(到千万开始用M)
+        let str = "";
+        if (n < 10000) {
+            str = n.toString();
+        } else if (n < 10000000) {
+            str = ((n / 1000).toFixed(1)).toString() + "K";
+        } else if (n < 10000000000) {
+            str = ((n / 1000000).toFixed(1)).toString() + "M";
+        } else {
+            str = ((n / 1000000000).toFixed(1)).toString() + "B";
+        }
+        return str;
     }
     /**时间戳是否跨天
      * @param t1 时间戳

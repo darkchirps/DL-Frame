@@ -2,6 +2,10 @@ import { Node } from 'cc';
 declare global {
    type tree_home = {
       "home": cc.Node,
+      "list": cc.Node,
+      "view": cc.Node,
+      "content": cc.Node,
+      "item": cc.Node,
    }
    type tree_loading = {
       "loading": cc.Node,

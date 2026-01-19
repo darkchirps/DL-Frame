@@ -4,7 +4,7 @@
 import { Gvent } from "../System/GlobalEventEnum";
 const { ccclass, property, menu, requireComponent } = cc._decorator;
 @ccclass
-@menu("常用组件/i18n")
+@menu("常用组件/多语言")
 @requireComponent(cc.Label)
 export default class i18n extends cc.Component {
     @property({ type: cc.Integer, displayName: "文本id" })

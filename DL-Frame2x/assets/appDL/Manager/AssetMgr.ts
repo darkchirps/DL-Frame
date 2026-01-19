@@ -114,28 +114,6 @@ export default class AssetMgr {
             this.assetsInfo[path].lastGetTime = new Date().getTime();
         }
     }
-    /**加载text 返回 json 该地图是二维数组*/
-    public getTextJson(mapId: number) {
-        return new Promise((resolve) => {
-            cc.resources.load(`map/level${mapId}`, cc.TextAsset, (err, textAsset) => {
-                if (err) {
-                    console.warn("从resources中读取资源错误", mapId, err);
-                    resolve(null);
-                    return;
-                }
-                const fileContent = textAsset.text;
-                const lines = fileContent.split('\n').filter(line => line.trim() !== '');
-                const jsonData = lines.map(line => {
-                    try {
-                        return JSON.parse(line);
-                    } catch (parseError) {
-                        return null;
-                    }
-                }).filter(data => data !== null);
-                resolve(jsonData);
-            });
-        });
-    }
     /**
      * 从AB包中加载AudioClip
      * @param path 资源路径

@@ -17,7 +17,7 @@ class Corner {
     visible: boolean[] = null;
 }
 @ccclass
-@menu('常用组件/roundBox')
+@menu('常用组件/圆角矩形')
 export default class RoundBox extends cc.RenderComponent {
     @property({ type: cc.SpriteAtlas, serializable: false, readonly: true, displayName: CC_DEV && 'Atlas' })
     private atlas: cc.SpriteAtlas = null;

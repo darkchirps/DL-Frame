@@ -16,22 +16,19 @@ export class main extends cc.Component {
 
     /**存放其他*/
     other: cc.Node = null;
-    /**底部banner栏*/
-    bannerNode: cc.Node = null;
     /**页面加载进度节点*/
     loadingNode: cc.Node = null;
-    /**钻石栏*/
-    diamondNode: cc.Node = null;
-    /**所需钻石栏的页面*/
-    diamondHaveName: string[] = [];
+    /**货币栏*/
+    CurrencyNode: cc.Node = null;
+    /**所需货币栏的页面*/
+    CurrencyHaveName: string[] = [];
 
     onLoad() {
         this.rootNode = cc.find(`Canvas/Root`);
         this.rootMaskNode = cc.find(`Canvas/Root/RootMask`);
         this.other = cc.find(`Canvas/Other`);
-        this.bannerNode = cc.find(`Canvas/Other/BannerNode`);
         this.loadingNode = cc.find(`Canvas/Other/Loading`);
-        this.diamondNode = cc.find(`Canvas/Other/DiamondItem`);
+        this.CurrencyNode = cc.find(`Canvas/Other/CurrencyItem`);
         this.adaptiveType();
     }
     start() {
