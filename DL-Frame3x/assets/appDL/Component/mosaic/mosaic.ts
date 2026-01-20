@@ -5,7 +5,7 @@ const { ccclass, property, menu, requireComponent, disallowMultiple } = _decorat
 @ccclass
 @requireComponent(Sprite)
 @disallowMultiple
-@menu("常用材质组件/mosaic")
+@menu("常用组件/图片马赛克")
 export default class jianbian extends Component {
     @property({ displayName: "材质", type: Material }) material: Material = null;
     materialTo: Material = null;

@@ -2,9 +2,10 @@
  * 描述:    将视频mp4转换成spriteFrame图 帧切换
 *******************************************************************************/
 import { _decorator, Component, Texture2D, ImageAsset, SpriteFrame } from 'cc';
-const { ccclass, property } = _decorator;
+const { ccclass, property, menu } = _decorator;
 
 @ccclass('videoToFrame')
+@menu('常用组件/视频转图片播放')
 export class videoToFrame extends Component {
     @property({ tooltip: "视频资源路径" })
     videoUrl: string = "";

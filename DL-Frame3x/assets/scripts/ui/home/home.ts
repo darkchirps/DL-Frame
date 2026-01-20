@@ -10,7 +10,6 @@ import { UIClass } from '../../../appDL/Manager/UIClass';
 const { ccclass, property, menu } = _decorator;
 
 @ccclass('home')
-@menu('常用UIScr/home')
 export class home extends UIScr {
     nodesType: tree_home;
 
@@ -20,7 +19,7 @@ export class home extends UIScr {
     }
     //执行一次的逻辑
     showUi() {
-
+       
     }
     //按钮管理
     btnManager() {

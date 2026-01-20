@@ -2,7 +2,7 @@ import { Rect, CCInteger, SpriteFrame, _decorator, Component } from "cc";
 
 const { ccclass, property, menu } = _decorator;
 @ccclass
-@menu("常用组件/listSpfs")
+@menu("常用组件/图片切换")
 export default class listSpfs extends Component {
 
     @property(SpriteFrame)

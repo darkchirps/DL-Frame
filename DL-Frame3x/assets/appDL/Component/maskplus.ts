@@ -3,10 +3,11 @@
 *******************************************************************************/
 import { _decorator, Component, PolygonCollider2D, Mask, UITransform, Vec3, v3, Node, Vec2, __private, Intersection2D, v2, CCInteger, CCBoolean, CCFloat } from 'cc';
 import { EDITOR } from 'cc/env';
-const { ccclass, property, executeInEditMode, requireComponent } = _decorator;
+const { ccclass, property, executeInEditMode, requireComponent, menu } = _decorator;
 
 /** 遮罩编辑 */
 @ccclass('maskplus')
+@menu('常用组件/多边形遮罩')
 @executeInEditMode
 @requireComponent(PolygonCollider2D)
 export class maskplus extends Component {

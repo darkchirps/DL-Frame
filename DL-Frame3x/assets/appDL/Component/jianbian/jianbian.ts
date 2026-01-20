@@ -3,7 +3,7 @@ const { ccclass, property, menu } = _decorator;
 
 //材质渐变
 @ccclass
-@menu("常用材质组件/jianbian")
+@menu("常用组件/图片文本渐变")
 export default class jianbian extends Component {
     @property({ displayName: "材质", type: Material }) material: Material = null;
 

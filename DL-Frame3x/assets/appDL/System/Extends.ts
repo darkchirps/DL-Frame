@@ -9,7 +9,7 @@ import {
 import i18n from "../Component/i18n";
 import labelChange from "../Component/labelChange";
 import listSpfs from "../Component/listSpfs";
-import list from "../Component/list";
+import virtualList from "../Component/virtualList";
 
 function resetSiblingIndexByZindex(node: Node) {
     let children = node.children;
@@ -213,9 +213,9 @@ if (!Object.getOwnPropertyDescriptor(Node.prototype, "nodes")) {
                 return this.getComponent(listSpfs);
             },
         },
-        list: {
+        virtualList: {
             get(this: Node) {
-                return this.getComponent(list);
+                return this.getComponent(virtualList);
             },
         },
         labelChange: {

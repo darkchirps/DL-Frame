@@ -1,8 +1,8 @@
 import { Mask, RichText, NodeEventType, Node } from "cc";
 import listSpfs from "./assets/appDL/Component/listSpfs";
 import labelChange from "./assets/appDL/Component/labelChange";
-import list from "./assets/appDL/Component/list";
 import i18n from "./assets/appDL/Component/i18n";
+import virtualList from "./assets/appDL/Component/virtualList";
 //扩展接口
 type k_v<T> = {
     [k: string]: T;
@@ -88,7 +88,7 @@ declare module "cc" {
         /**切换图片组件*/
         get listSpfs(): listSpfs;
         /**列表组件*/
-        get list(): list;
+        get virtualList(): virtualList;
         /**数值滚动组件*/
         get labelChange(): labelChange;
         /**多语言组件*/

@@ -1,7 +1,6 @@
 import { isValid, BlockInputEvents, Component, find, instantiate, Layers, tween, EventTarget, Node, _decorator, Tween, log, Widget } from "cc";
 import UIScr from "./UIScr";
 import UIMgr from "./UIMgr";
-import { Prefab } from "cc";
 
 const { ccclass } = _decorator;
 
@@ -164,8 +163,6 @@ export type UIConfig = {
     parfabPath?: string;
     /**全屏*/
     fullScreen?: boolean;
-    /**显示钻石栏*/
-    diamond?: boolean;
     /**页面打开关闭动画*/
     animBool?: boolean;
     /**组别 同组情况下只会显示最新打开的*/

@@ -7,7 +7,7 @@ import { Gvent } from "../System/GlobalEventEnum";
 const { ccclass, property, menu, requireComponent } = _decorator;
 
 @ccclass('I18n')
-@menu("常用组件/i18n")
+@menu("常用组件/多语言")
 @requireComponent(Label)
 export default class I18n extends Component {
     @property({ type: CCInteger, displayName: "多语言id" })

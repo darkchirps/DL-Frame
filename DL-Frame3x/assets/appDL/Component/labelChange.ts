@@ -6,7 +6,7 @@ import { _decorator, Label } from "cc";
 const { ccclass, property, menu } = _decorator;
 
 @ccclass('labelChange')
-@menu("常用组件/labelChange")
+@menu("常用组件/数值滚动")
 export default class LabelChange extends Label {
     //默认为每帧都改变
     private frameNum: number = 1;

@@ -5,7 +5,6 @@ import { bundleType, UIClass } from '../../../appDL/Manager/UIClass';
 const { ccclass, property, menu } = _decorator;
 
 @ccclass('loading')
-@menu('常用UIScr/loading')
 export class loading extends UIScr {
     //节点树type，在预置体发生变化后，通过 IDE-工作台-更新prefab提示文件 来生成和更新
     nodesType: tree_loading;
@@ -13,12 +12,14 @@ export class loading extends UIScr {
     loadStep: number = 0;
 
     start() {
-        ConfigMgr.init(bundleType.resources, "bin", (binArr) => {
-            G.config = binArr;
-            this.loadStep++;
-        });
+        // ConfigMgr.init(bundleType.resources, "bin", (binArr) => {
+        //     G.config = binArr;
+        //     this.loadStep++;
+        // });
         this.loadStep++;
         this.loadStep++;
+        this.loadStep++;
+
     }
     enterFunc() {
         UIMgr.ui.home.show();

@@ -10,7 +10,6 @@ import { UIClass } from '../../../appDL/Manager/UIClass';
 const { ccclass, property ,menu } = _decorator;
 
 @ccclass('game')
-@menu('常用UIScr/game')
 export class game extends UIScr {
     nodesType : tree_game;
     
