@@ -3,7 +3,6 @@
 *******************************************************************************/
 import timekeep from "../Component/timekeep";
 import labelChange from "../Component/labelChange";
-import list from "../Component/ListPlus/list";
 import listSpfs from "../Component/listSpfs";
 import richTextPlus from "../Component/richTextPlus";
 import roundBox from "../Component/roundBox";
@@ -11,6 +10,8 @@ import CCMVideo from "../Component/VideoUi/CCMVideo";
 import pageRoll from "../Component/pageRoll";
 import switcher from "../Component/switcher";
 import customPolygon from "../Component/customPolygon";
+import virtualList from "../Component/virtualList";
+import videoPlay from "../Component/VideoUi/videoPlay";
 
 if (!Object.getOwnPropertyDescriptor(cc.Node.prototype, "nodes")) {
     Object.defineProperties(cc.Node.prototype, {
@@ -148,9 +149,9 @@ if (!Object.getOwnPropertyDescriptor(cc.Node.prototype, "nodes")) {
 
 
         //新增组件
-        list: {
+        virtualList: {
             get(this: cc.Node) {
-                return this.getComponent(list);
+                return this.getComponent(virtualList);
             },
         },
         labelChange: {
@@ -168,9 +169,9 @@ if (!Object.getOwnPropertyDescriptor(cc.Node.prototype, "nodes")) {
                 return this.getComponent(listSpfs);
             },
         },
-        CCMVideo: {
+        videoPlay: {
             get(this: cc.Node) {
-                return this.getComponent(CCMVideo);
+                return this.getComponent(videoPlay);
             },
         },
         roundBox: {

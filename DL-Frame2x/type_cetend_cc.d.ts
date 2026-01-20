@@ -56,11 +56,11 @@ declare namespace cc {
         nodesCache: object;
 
         //新增组件
-        get list(): list;
+        get virtualList(): virtualList;
         get labelChange(): labelChange;
         get richTextPlus(): richTextPlusr;
         get listSpfs(): listSpfs;
-        get CCMVideo(): CCMVideo;
+        get videoPlay(): videoPlay;
         get roundBox(): roundBox;
         get timekeep(): timekeep;
         get pageRoll(): pageRoll;

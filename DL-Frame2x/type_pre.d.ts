@@ -5,7 +5,10 @@ declare global {
       "list": cc.Node,
       "view": cc.Node,
       "content": cc.Node,
-      "item": cc.Node,
+      "picbagItem": cc.Node,
+      "New Sprite(Splash)": cc.Node,
+      "label": cc.Node,
+      "btn": cc.Node,
    }
    type tree_loading = {
       "loading": cc.Node,

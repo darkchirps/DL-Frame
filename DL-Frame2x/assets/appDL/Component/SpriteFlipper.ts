@@ -10,8 +10,8 @@ export enum SizeMode { 'CUSTOM: 自定义尺寸', 'TRIMMED: 原始尺寸裁剪�
 export enum RotationAxis { 绕锚点X轴旋转, 绕锚点Y轴旋转 }
 const { ccclass, property, menu } = cc._decorator;
 @ccclass
-@menu('常用组件/支持3D旋转的图片')
-export default class SpriteFlipper extends cc.RenderComponent {
+@menu('常用组件/旋转图片')
+export default class spriteFlipper extends cc.RenderComponent {
     @property({ type: cc.SpriteAtlas, serializable: false, readonly: true, displayName: CC_DEV && 'Atlas' })
     private atlas: cc.SpriteAtlas = null;
     @property

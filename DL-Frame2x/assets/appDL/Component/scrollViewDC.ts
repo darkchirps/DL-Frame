@@ -3,7 +3,7 @@
 *******************************************************************************/
 const { ccclass, property, menu, inspector } = cc._decorator;
 @ccclass
-@menu('常用组件/列表组件减少dc')
+@menu('常用组件/滑动列表减dc')
 export default class scrollViewDC extends cc.Component {
 
     private _sv: cc.ScrollView = null;

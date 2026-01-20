@@ -46,7 +46,6 @@ const { ccclass, property, menu } = cc._decorator;
 const gfx: any = (cc as any).gfx;
 
 @ccclass
-@menu('常用组件/CCMVideo')
 export default class CCMVideo extends cc.RenderComponent {
 
     // private source: cc.Asset | string = null;

@@ -3,10 +3,11 @@ import CCMVideo, { VideoEventType } from "./CCMVideo";
 /*******************************************************************************
  * 描述:    播放视频的节点上挂载此组件
 *******************************************************************************/
-const { ccclass, property, menu } = cc._decorator;
+const { ccclass, property, menu, requireComponent } = cc._decorator;
 @ccclass
-@menu('常用组件/CCMVideoItem')
-export class CCMVideoItem extends cc.Component {
+@menu('常用组件/视频播放最上层')
+@requireComponent(CCMVideo)
+export default class videoPlay extends cc.Component {
 
     get CCMVideo() {
         return this.node.getComponent(CCMVideo);
