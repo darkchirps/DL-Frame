@@ -1,10 +1,10 @@
 {
   "__type__": "cc.Material",
-  "_name": "jianbian",
+  "_name": "gradient",
   "_objFlags": 0,
   "_native": "",
   "_effectAsset": {
-    "__uuid__": "ae73f613-7ef8-4f89-bf1e-22967d287f99"
+    "__uuid__": "d096c850-ebe1-4758-9712-b949650323e0"
   },
   "_techniqueIndex": 0,
   "_techniqueData": {
@@ -23,15 +23,16 @@
           "g": 255,
           "b": 255,
           "a": 255
-        }
+        },
+        "detaY": 0.4
       },
       "defines": {
         "USE_TEXTURE": true,
         "USE_COLOR": true,
-        "IS_VERTICAL": true,
+        "IS_VERTICAL": false,
         "IS_DYNAMIC": false,
         "USE_DYNAMIC": false,
-        "IS_HORIZONTAL": false,
+        "IS_HORIZONTAL": true,
         "USE_ALPHA_TEST": false
       }
     }

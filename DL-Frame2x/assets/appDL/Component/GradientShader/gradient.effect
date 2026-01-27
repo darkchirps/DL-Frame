@@ -98,6 +98,9 @@ CCProgram fs %{
   };
  
     #if IS_HORIZONTAL
+      uniform direction{
+    boolean bool;
+  };
     #endif
  
     #if IS_VERTICAL
@@ -152,12 +155,12 @@ CCProgram fs %{
  
           #if IS_DYNAMIC
             //颜色消退
-            // a_color = beginColor + (endColor-beginColor)*( uv.x +  sin(cc_time.x) ) ;
+            //a_color = beginColor + (endColor-beginColor)*( uv.x +  sin(cc_time.x) ) ;
  
             // 颜色回弹
             // if(  abs( abs(sin(cc_time.x)) - uv.x ) <0.1 ) {
             //   a_color =  endColor  ;
-            // }
+            //}
       
             // // 颜色斜回弹
             // if(  abs( abs(sin(cc_time.x)) - (uv.x+uv.y)/2.0 ) <0.1 ) {
@@ -170,9 +173,9 @@ CCProgram fs %{
             // }
             
             // 渐变扫光效果
-            if(  abs( tan(cc_time.x) - (uv.x+uv.y)/2.0 ) <0.05 ) {
-              a_color =  endColor  ;
-            }
+            //if(  abs( tan(cc_time.x) - (uv.x+uv.y)/2.0 ) <0.05 ) {
+            //  a_color =  endColor  ;
+            //}
             
             // 交错扫光效果
             // if(  abs( sin(cc_time.x) - (uv.x+uv.y)/2.0 ) <0.05 ) {

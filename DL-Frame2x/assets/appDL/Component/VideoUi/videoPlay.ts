@@ -19,7 +19,7 @@ export default class videoPlay extends cc.Component {
             if (!video) return;
 
             // avoid adding duplicate handlers
-            const compName = 'CCMVideoItem';
+            const compName = 'videoPlay';
             const handlerName = 'onVideoEvent';
             for (let i = 0; i < video.videoPlayerEvent.length; i++) {
                 const h = video.videoPlayerEvent[i];

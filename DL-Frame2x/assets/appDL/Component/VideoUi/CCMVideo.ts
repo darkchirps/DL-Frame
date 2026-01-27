@@ -356,9 +356,6 @@ export default class CCMVideo extends cc.RenderComponent {
     }
 
     public onLoad(): void {
-        //加载材质
-        this.LoadMaterial();
-
         this.initialize();
         if (this.impl) {
             this.updateVideoSource();
@@ -588,33 +585,5 @@ export default class CCMVideo extends cc.RenderComponent {
 
     private isInPlaybackState() {
         return !!this.impl && this.currentState != VideoState.IDLE && this.currentState != VideoState.PREPARING && this.currentState != VideoState.ERROR;
-    }
-
-    private LoadMaterial(): void {
-        if (this.rgba == null) {
-            this.LoadAndSetMaterial("rgba", this.rgba);
-        }
-        if (this.rgb == null) {
-            this.LoadAndSetMaterial("rgb", this.rgb);
-        }
-        if (this.i420 == null) {
-            this.LoadAndSetMaterial("i420", this.i420);
-        }
-        if (this.nv12 == null) {
-            this.LoadAndSetMaterial("nv12", this.nv12);
-        }
-        if (this.nv21 == null) {
-            this.LoadAndSetMaterial("nv21", this.nv21);
-        }
-    }
-
-    private LoadAndSetMaterial(name: string, target: cc.Material): void {
-        cc.assetManager.loadBundle("materials", (err, bundle: cc.AssetManager.Bundle) => {
-            if (err) return;
-            bundle.load<cc.Material>("Material/builtin-" + name, (error, assets) => {
-                if (error) return;
-                target = assets;
-            });
-        });
     }
 }
