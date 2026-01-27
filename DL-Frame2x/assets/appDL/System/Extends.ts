@@ -150,7 +150,7 @@ if (!Object.getOwnPropertyDescriptor(cc.Node.prototype, "nodes")) {
 
         //新增组件
         virtualList: {
-            get(this: cc.Node) {
+            get(this: cc.Node): virtualList {
                 return this.getComponent(virtualList);
             },
         },

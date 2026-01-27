@@ -1,29 +1,54 @@
-import { _decorator, ScrollView, js, Node, instantiate, Vec2, EventHandler, Component, Layout, Size, size, NodePool } from "cc";
+import { _decorator, Component, Node, ScrollView, Layout, EventHandler, NodePool, Size, Vec2, Vec3, UITransform, instantiate, js, size, v2, v3 } from 'cc';
 
-/*******************************************************************************
- * 描述: 虚拟列表（核心逻辑整合版）
- * 支持: 单行、单列、网格布局、对象池、渲染回调、跳转到指定index
- * 优化: 计算缓存、事件节流、内存优化、渲染优化
- *******************************************************************************/
 const { ccclass, property, disallowMultiple, menu, executionOrder, requireComponent } = _decorator;
 
-@ccclass
+@ccclass('VirtualList')
 @disallowMultiple()
-@menu('常用组件/虚拟列表')
+@menu('常用组件/虚拟列表(含分页)')
 @requireComponent(ScrollView)
 @executionOrder(-5000)
-export default class virtualList extends Component {
-    @property({ type: Node, tooltip: '模板Item' }) tmpNode: Node = null;
+export default class VirtualList extends Component {
 
-    // --- 内部计算变量 ---
+    @property({ type: Node, tooltip: '模板Item' })
+    tmpNode: Node | null = null;
+
+    // --- 模式选择 ---
+    @property({ tooltip: '是否启用分页吸附模式 (开启后将强制关闭惯性滚动)' })
+    isPageView: boolean = false;
+
+    // --- PageView 专用属性 ---
+    @property({
+        tooltip: '翻页阈值 (0.1-0.9)\n滑动距离超过 View 宽/高的多少比例时自动翻页',
+        min: 0.1, max: 0.9,
+        slide: true,
+        step: 0.1,
+        visible: function (this: VirtualList) { return this.isPageView; }
+    })
+    turnPageThreshold: number = 0.2;
+
+    @property({
+        tooltip: '翻页/吸附动画时间 (秒)',
+        min: 0,
+        visible: function (this: VirtualList) { return this.isPageView; }
+    })
+    scrollDuration: number = 0.3;
+
+    @property({
+        tooltip: '快速滑动翻页的最小速度 (像素/秒)\n即使距离不够，速度够快也能翻页',
+        min: 100,
+        visible: function (this: VirtualList) { return this.isPageView; }
+    })
+    autoPageSpeed: number = 500;
+
+    // --- 内部变量 ---
     private _inited: boolean = false;
-    private _scrollView: ScrollView = null;
-    private content: Node = null;
-    private _layout: Layout = null;
+    private _scrollView: ScrollView = null!;
+    private content: Node = null!;
+    private _layout: Layout | null = null;
 
     private _itemSize: Size = size(0, 0);
-    private _sizeType: boolean = true; // true: 垂直方向, false: 水平方向
-    private _colLineNum: number = 1;   // 行/列数
+    private _sizeType: boolean = true; // true: 垂直, false: 水平
+    private _colLineNum: number = 1;   // 网格模式下的 列数(垂直时) 或 行数(水平时)
 
     // 布局参数缓存
     private _topGap: number = 0;
@@ -35,89 +60,140 @@ export default class virtualList extends Component {
 
     private _actualNumItems: number = 0;
     private _pool: NodePool = new NodePool();
+
+    // 事件回调
     private _renderEvent: EventHandler = new EventHandler();
+    private _pageTurnEvent: EventHandler = new EventHandler();
+
     private _forceUpdate: boolean = false;
 
     // --- 性能优化缓存 ---
-    private _viewSize: Size = size(0, 0); // 视图尺寸缓存（避免频繁调用getContentSize）
-    private _itemStep: number = 0; // item步进值缓存（宽/高 + 间距）
-    private _scrollThrottleTimer: number = 0; // 滚动节流计时器
-    private _scrollThrottleInterval: number = 16; // 节流间隔（约60帧/秒）
-    private _currentVisibleRange: { start: number, end: number } = { start: -1, end: -1 }; // 可视区域缓存
+    private _viewSize: Size = size(0, 0);
+    private _itemStep: number = 0;
+    private _scrollThrottleTimer: number = 0;
+    private _scrollThrottleInterval: number = 16; // 约 60fps
+    private _currentVisibleRange: { start: number, end: number } = { start: -1, end: -1 };
+
+    // --- PageView 逻辑变量 ---
+    private _curPageIdx: number = 0;
+    private _startTouchPos: Vec2 = v2();
+    private _startTime: number = 0;
+
+    // --- 辅助方法：获取 UITransform ---
+    private _getUI(node: Node): UITransform {
+        return node.getComponent(UITransform)!;
+    }
 
     // --- 外部接口 ---
 
-    /** 绑定渲染回调 */
-    bindRenderEvent(uiScr: any, handler: string) {
+    /** 绑定渲染回调 (uiScr: 脚本实例, handler: 函数名) */
+    bindRenderEvent(uiScr: Component, handler: string) {
         this._renderEvent.target = uiScr.node;
         this._renderEvent.component = js.getClassName(uiScr);
         this._renderEvent.handler = handler;
     }
 
-    /** 设置列表数量 */
+    /** 绑定翻页/选中回调 (参数: 当前 Index) */
+    bindPageTurnEvent(uiScr: Component, handler: string) {
+        this._pageTurnEvent.target = uiScr.node;
+        this._pageTurnEvent.component = js.getClassName(uiScr);
+        this._pageTurnEvent.handler = handler;
+    }
+
+    /** 设置列表总数量 */
     set numItems(val: number) {
-        // 避免重复设置相同数值
         if (this._actualNumItems === val) return;
 
         this._actualNumItems = val;
         this._forceUpdate = true;
+
+        // 如果是分页模式，数量改变可能导致当前页越界
+        if (this.isPageView && this._curPageIdx >= this._actualNumItems) {
+            this._curPageIdx = Math.max(0, this._actualNumItems - 1);
+        }
+
         if (this._inited) {
             this._resizeContent();
-            this._updateVisibleItems(); // 替换直接调用_onScrolling，避免节流影响初始化
+            this._updateVisibleItems();
+
+            // 分页模式下，数据重置后需要重新对齐
+            if (this.isPageView) {
+                this.scheduleOnce(() => {
+                    this.scrollToIndex(this._curPageIdx, 0);
+                }, 0);
+            }
         }
     }
 
     get numItems() { return this._actualNumItems; }
 
+    /** 获取当前吸附的索引 (仅分页模式有效) */
+    get currentPage() { return this._curPageIdx; }
+
     /**
      * 跳转到指定索引
      * @param index 目标索引
-     * @param duration 滚动时间（秒），传0为瞬间跳转
+     * @param duration 动画时间，0 为瞬间跳转，-1 使用默认值
      */
-    scrollToIndex(index: number, duration: number = 0.3) {
-        if (!this._inited || index < 0 || index >= this._actualNumItems) {
-            console.warn(`VirtualList: 索引 ${index} 越界，列表总数为 ${this._actualNumItems}`);
-            return;
+    scrollToIndex(index: number, duration: number = -1) {
+        if (!this._inited) return;
+
+        // 索引修正
+        if (index < 0) index = 0;
+        if (this._actualNumItems > 0 && index >= this._actualNumItems) {
+            index = this._actualNumItems - 1;
         }
 
-        // 核心补充：duration为0时，先停止所有滑动动画再跳转
-        if (duration === 0) {
-            this._scrollView.stopAutoScroll();
-            this._scrollView.scrollToOffset(this._scrollView.getScrollOffset(), 0);
+        if (duration < 0) {
+            duration = this.isPageView ? this.scrollDuration : 0.3;
+        }
+
+        this._scrollView.stopAutoScroll();
+
+        // 记录当前页
+        this._curPageIdx = index;
+
+        // 触发事件
+        if (this.isPageView) {
+            EventHandler.emitEvents([this._pageTurnEvent], this._curPageIdx);
         }
 
         this._resizeContent();
 
-        // 使用缓存的视图尺寸
-        let targetOffset = Vec2.ZERO;
+        let targetOffset = v2(0, 0);
+        const maxOffset = this._scrollView.getMaxScrollOffset();
 
-        if (this._sizeType) { // 垂直方向
-            const row = Math.floor(index / this._colLineNum);
-            const rowTopY = this._topGap + row * this._itemStep; // 使用缓存的步进值
-            // @ts-ignore
-            targetOffset.y = rowTopY;
+        // --- 计算目标 Offset ---
 
-            // 边界处理：防止滚动超出范围
-            const maxOffsetY = Math.max(0, this.content.uiTransform.height - this._viewSize.height);
-            // @ts-ignore
-            targetOffset.y = Math.max(0, Math.min(targetOffset.y, maxOffsetY));
-        } else { // 水平方向
-            const col = Math.floor(index / this._colLineNum);
-            const colLeftX = this._leftGap + col * this._itemStep; // 使用缓存的步进值
-            // @ts-ignore
-            targetOffset.x = colLeftX;
-
-            // 边界处理：防止滚动超出范围
-            const maxOffsetX = Math.max(0, this.content.uiTransform.width - this._viewSize.width);
-            // @ts-ignore
-            targetOffset.x = Math.max(0, Math.min(targetOffset.x, maxOffsetX));
+        // 修复：分页模式下，首尾强制对齐
+        if (this.isPageView && index === 0) {
+            targetOffset.x = 0;
+            targetOffset.y = 0;
+        } else if (this.isPageView && index === this._actualNumItems - 1) {
+            targetOffset.x = maxOffset.x;
+            targetOffset.y = maxOffset.y;
+        } else {
+            // 常规计算
+            if (this._sizeType) { // 垂直
+                const row = Math.floor(index / this._colLineNum);
+                const rowTopY = this._topGap + row * this._itemStep;
+                targetOffset.y = Math.min(rowTopY, maxOffset.y);
+            } else { // 水平
+                const col = Math.floor(index / this._colLineNum);
+                const colLeftX = this._leftGap + col * this._itemStep;
+                targetOffset.x = Math.min(colLeftX, maxOffset.x);
+            }
         }
 
-        // 执行跳转
-        this._scrollView.scrollToOffset(targetOffset, duration);
+        // --- 执行滚动 ---
+        if (duration === 0) {
+            this._scrollView.scrollToOffset(targetOffset);
+        } else {
+            this._scrollView.scrollToOffset(targetOffset, duration);
+        }
 
-        // 强制更新列表渲染，确保目标item显示（使用微任务，避免帧内阻塞）
-        this.unschedule(this._forceUpdateVisible); // 取消之前的调度，避免重复执行
+        // 强制刷新
+        this.unschedule(this._forceUpdateVisible);
         this.scheduleOnce(this._forceUpdateVisible, 0);
     }
 
@@ -126,25 +202,32 @@ export default class virtualList extends Component {
     }
 
     start() {
-        // 延迟获取视图尺寸，确保节点布局完成
-        this._viewSize = this.node.uiTransform.contentSize;
-        // 预计算item步进值（减少重复计算）
+        this._viewSize = this._getUI(this.node).contentSize;
         this._calcItemStep();
+        if (this.isPageView) {
+            this.scheduleOnce(() => {
+                this.scrollToIndex(this._curPageIdx, 0);
+            }, 0);
+        }
     }
 
     private _init() {
         if (this._inited) return;
 
-        this._scrollView = this.node.getComponent(ScrollView);
-        this.content = this._scrollView.content;
+        this._scrollView = this.node.getComponent(ScrollView)!;
+        this.content = this._scrollView.content!;
 
-        // 强制 Content 锚点为左上角 (0, 1)
-        this.content.uiTransform.anchorX = 0;
-        this.content.uiTransform.anchorY = 1;
+        if (this.isPageView) {
+            this._scrollView.elastic = false;
+            this._scrollView.inertia = false;
+            this._scrollView.brake = 1;
+        }
 
         this._layout = this.content.getComponent(Layout);
 
         if (this._layout && this.tmpNode) {
+            const tmpUI = this._getUI(this.tmpNode);
+
             this._topGap = this._layout.paddingTop;
             this._bottomGap = this._layout.paddingBottom;
             this._leftGap = this._layout.paddingLeft;
@@ -152,29 +235,79 @@ export default class virtualList extends Component {
             this._lineGap = this._layout.spacingY;
             this._columnGap = this._layout.spacingX;
 
-            this._itemSize = size(this.tmpNode.uiTransform.width, this.tmpNode.uiTransform.height);
+            this._itemSize = size(tmpUI.width, tmpUI.height);
             this._sizeType = this._layout.type === Layout.Type.VERTICAL ||
                 (this._layout.type === Layout.Type.GRID && this._layout.startAxis === Layout.AxisDirection.HORIZONTAL);
 
             this._layout.enabled = false;
         }
 
-        // 优化：使用节流的滚动事件处理
         this.node.on('scrolling', this._onScrollingThrottle, this);
-        this.content.removeAllChildren();
 
-        // 隐藏模板节点（避免渲染开销）
+        // 3.x 触摸事件
+        this.node.on(Node.EventType.TOUCH_START, this._onTouchStart, this);
+        this.node.on(Node.EventType.TOUCH_END, this._onTouchEnd, this);
+        this.node.on(Node.EventType.TOUCH_CANCEL, this._onTouchEnd, this);
+
+        this.content.removeAllChildren();
         if (this.tmpNode) {
             this.tmpNode.active = false;
-            this.tmpNode.parent = null; // 从场景树移除，减少节点遍历开销
+            if (this.tmpNode.parent === this.content) {
+                this.tmpNode.removeFromParent();
+            }
         }
 
         this._inited = true;
     }
 
-    // --- 性能优化核心方法 ---
+    private _onTouchStart(event: any) { // 3.x EventTouch
+        if (!this.isPageView) return;
 
-    /** 计算item步进值（宽/高 + 间距），缓存起来避免重复计算 */
+        // 3.x getLocation 返回 Vec2
+        this._startTouchPos = event.getLocation();
+        this._startTime = Date.now();
+        this._scrollView.stopAutoScroll();
+    }
+
+    private _onTouchEnd(event: any) {
+        if (!this._inited || this._actualNumItems <= 0) return;
+        if (!this.isPageView) return;
+
+        let endPos = event.getLocation();
+        let dt = (Date.now() - this._startTime) / 1000;
+
+        let offset = 0;
+        let axisSize = 0;
+
+        if (this._sizeType) { // 垂直
+            offset = this._startTouchPos.y - endPos.y; // >0 下一页
+            axisSize = this._itemSize.height;
+        } else { // 水平
+            offset = this._startTouchPos.x - endPos.x; // >0 下一页
+            axisSize = this._itemSize.width;
+        }
+
+        let velocity = Math.abs(offset / dt);
+        let nextIndex = this._curPageIdx;
+
+        // 翻页判断逻辑
+        if (offset > 0) { // 下一页
+            if (this._curPageIdx < this._actualNumItems - 1) {
+                if (Math.abs(offset) > axisSize * this.turnPageThreshold || velocity > this.autoPageSpeed) {
+                    nextIndex++;
+                }
+            }
+        } else { // 上一页
+            if (this._curPageIdx > 0) {
+                if (Math.abs(offset) > axisSize * this.turnPageThreshold || velocity > this.autoPageSpeed) {
+                    nextIndex--;
+                }
+            }
+        }
+
+        this.scrollToIndex(nextIndex);
+    }
+
     private _calcItemStep() {
         if (this._sizeType) {
             this._itemStep = this._itemSize.height + this._lineGap;
@@ -183,35 +316,33 @@ export default class virtualList extends Component {
         }
     }
 
-    /** 滚动事件节流处理（避免高频触发_onScrolling） */
     private _onScrollingThrottle() {
         const now = Date.now();
-        if (now - this._scrollThrottleTimer < this._scrollThrottleInterval) {
-            return;
-        }
+        if (now - this._scrollThrottleTimer < this._scrollThrottleInterval) return;
         this._scrollThrottleTimer = now;
         this._updateVisibleItems();
     }
 
-    /** 强制更新可视区域（用于跳转/初始化） */
     private _forceUpdateVisible() {
         this._forceUpdate = true;
         this._updateVisibleItems();
     }
 
-    /** 更新可视区域item（核心渲染逻辑，抽离出来方便复用） */
     private _updateVisibleItems() {
         if (!this._inited) return;
 
         let offset = this._scrollView.getScrollOffset();
-        // 缓存视图尺寸，避免频繁调用getContentSize
-        if (!this._viewSize.equals(this.node.uiTransform.contentSize)) {
-            this._viewSize = this.node.uiTransform.contentSize;
-            this._calcItemStep(); // 尺寸变化时重新计算步进值
+        const nodeUI = this._getUI(this.node);
+
+        // 比较尺寸是否变化
+        if (!this._viewSize.equals(nodeUI.contentSize)) {
+            this._viewSize = nodeUI.contentSize.clone();
+            this._calcItemStep();
         }
 
         let startIdx = 0, endIdx = 0;
 
+        // 计算可视范围索引
         if (this._sizeType) {
             let startY = offset.y;
             let endY = offset.y + this._viewSize.height;
@@ -224,18 +355,20 @@ export default class virtualList extends Component {
             endIdx = Math.ceil((endX - this._leftGap) / this._itemStep) * this._colLineNum + (this._colLineNum - 1);
         }
 
-        // 边界处理
+        // 扩大缓冲区
+        startIdx -= this._colLineNum;
+        endIdx += this._colLineNum;
+
         startIdx = Math.max(0, startIdx);
         endIdx = Math.min(this._actualNumItems - 1, endIdx);
 
-        // 优化：如果可视区域范围未变化且无需强制更新，直接返回（避免重复计算）
         if (!this._forceUpdate && this._currentVisibleRange.start === startIdx && this._currentVisibleRange.end === endIdx) {
             return;
         }
         this._currentVisibleRange.start = startIdx;
         this._currentVisibleRange.end = endIdx;
 
-        // 回收超出可视区域的item
+        // 回收
         for (let i = this.content.children.length - 1; i >= 0; i--) {
             let item = this.content.children[i];
             let idx = (item as any)._listId;
@@ -244,8 +377,7 @@ export default class virtualList extends Component {
             }
         }
 
-        // 创建/更新可视区域内的item
-        // 优化：使用对象缓存减少数组遍历（some方法）
+        // 显示
         const existIds = new Set<number>();
         this.content.children.forEach(child => existIds.add((child as any)._listId));
 
@@ -254,103 +386,117 @@ export default class virtualList extends Component {
                 this._createItem(i);
             }
         }
-
         this._forceUpdate = false;
     }
 
     private _setItemPosition(node: Node, index: number) {
-        let row = Math.floor(index / this._colLineNum);
-        let col = index % this._colLineNum;
+        let row = 0;
+        let col = 0;
 
-        // 获取 Item 自身的锚点偏移
-        let anchorOffsetX = node.uiTransform.anchorX * this._itemSize.width;
-        let anchorOffsetY = (1 - node.uiTransform.anchorY) * this._itemSize.height;
+        if (this._sizeType) { // 垂直
+            col = index % this._colLineNum;
+            row = Math.floor(index / this._colLineNum);
+        } else { // 水平
+            row = index % this._colLineNum;
+            col = Math.floor(index / this._colLineNum);
+        }
 
-        if (this._sizeType) { // 垂直滑动模式
-            // 1. 计算所有列占用的总宽度（包含间距，但不包含 Padding）
+        const nodeUI = this._getUI(node);
+        const contentUI = this._getUI(this.content);
+
+        // 3.x 锚点计算调整
+        let itemAnchorOffsetX = nodeUI.anchorX * this._itemSize.width;
+        let itemAnchorOffsetY = (1 - nodeUI.anchorY) * this._itemSize.height;
+
+        const contentStartX = -contentUI.width * contentUI.anchorX;
+        const contentStartY = contentUI.height * (1 - contentUI.anchorY);
+
+        if (this._sizeType) {
             let totalItemsWidth = (this._colLineNum * this._itemSize.width) + ((this._colLineNum - 1) * this._columnGap);
-
-            // 2. 计算居中偏移量：(容器可用空间 - Items总空间) / 2
-            let availableW = this.content.uiTransform.width - this._leftGap - this._rightGap;
+            let availableW = contentUI.width - this._leftGap - this._rightGap;
             let centerOffsetX = (availableW - totalItemsWidth) / 2;
-            centerOffsetX = Math.max(0, centerOffsetX); // 简化写法
+            centerOffsetX = Math.max(0, centerOffsetX);
 
-            // 3. 最终 X/Y 计算（使用缓存的步进值）
-            let x = this._leftGap + centerOffsetX + col * (this._itemSize.width + this._columnGap) + anchorOffsetX;
-            let y = -(this._topGap + row * this._itemStep + anchorOffsetY);
+            let offsetX = this._leftGap + centerOffsetX + col * (this._itemSize.width + this._columnGap) + itemAnchorOffsetX;
+            let offsetY = this._topGap + row * this._itemStep + itemAnchorOffsetY;
 
-            node.setPosition(x, y);
+            // 3.x 设置坐标
+            node.setPosition(contentStartX + offsetX, contentStartY - offsetY);
         } else {
-            // 水平滑动模式
             let totalItemsHeight = (this._colLineNum * this._itemSize.height) + ((this._colLineNum - 1) * this._lineGap);
-            let availableH = this.content.uiTransform.height - this._topGap - this._bottomGap;
+            let availableH = contentUI.height - this._topGap - this._bottomGap;
             let centerOffsetY = (availableH - totalItemsHeight) / 2;
             centerOffsetY = Math.max(0, centerOffsetY);
 
-            let x = this._leftGap + col * (this._itemSize.width + this._columnGap) + anchorOffsetX;
-            let y = -(this._topGap + centerOffsetY + row * this._itemStep + anchorOffsetY);
+            let offsetX = this._leftGap + col * this._itemStep + itemAnchorOffsetX;
+            let offsetY = this._topGap + centerOffsetY + row * (this._itemSize.height + this._lineGap) + itemAnchorOffsetY;
 
-            node.setPosition(x, y);
+            // 3.x 设置坐标
+            node.setPosition(contentStartX + offsetX, contentStartY - offsetY);
         }
     }
 
-    // --- 核心计算 ---
-
     private _resizeContent() {
+        if (!this._inited) return;
+
         let result = 0;
-        if (this._layout.type === Layout.Type.GRID) {
+        const contentUI = this._getUI(this.content);
+        const layoutType = this._layout ? this._layout.type : Layout.Type.NONE;
+
+        // 计算行/列数逻辑
+        if (layoutType === Layout.Type.GRID) {
             if (this._sizeType) { // 垂直
-                let availableW = this.content.uiTransform.width - this._leftGap - this._rightGap;
+                let availableW = contentUI.width - this._leftGap - this._rightGap;
                 this._colLineNum = Math.floor((availableW + this._columnGap) / (this._itemSize.width + this._columnGap)) || 1;
                 let rows = Math.ceil(this._actualNumItems / this._colLineNum);
                 result = this._topGap + (rows * this._itemSize.height) + (rows > 1 ? (rows - 1) * this._lineGap : 0) + this._bottomGap;
-                this.content.uiTransform.height = result;
+
+                contentUI.height = result;
+                if (this.isPageView) contentUI.width = Math.max(contentUI.width, this._viewSize.width);
+
             } else { // 水平
-                let availableH = this.content.uiTransform.height - this._topGap - this._bottomGap;
+                let availableH = contentUI.height - this._topGap - this._bottomGap;
                 this._colLineNum = Math.floor((availableH + this._lineGap) / (this._itemSize.height + this._lineGap)) || 1;
                 let cols = Math.ceil(this._actualNumItems / this._colLineNum);
                 result = this._leftGap + (cols * this._itemSize.width) + (cols > 1 ? (cols - 1) * this._columnGap : 0) + this._rightGap;
-                this.content.uiTransform.width = result;
+
+                contentUI.width = result;
+                if (this.isPageView) contentUI.height = Math.max(contentUI.height, this._viewSize.height);
             }
         } else {
+            // 单行/单列
             this._colLineNum = 1;
             if (this._sizeType) {
                 result = this._topGap + (this._actualNumItems * this._itemSize.height) + (this._actualNumItems > 1 ? (this._actualNumItems - 1) * this._lineGap : 0) + this._bottomGap;
-                this.content.uiTransform.height = result;
+                contentUI.height = result;
+                if (this.isPageView) contentUI.width = Math.max(contentUI.width, this._viewSize.width);
             } else {
                 result = this._leftGap + (this._actualNumItems * this._itemSize.width) + (this._actualNumItems > 1 ? (this._actualNumItems - 1) * this._columnGap : 0) + this._rightGap;
-                this.content.uiTransform.width = result;
+                contentUI.width = result;
+                if (this.isPageView) contentUI.height = Math.max(contentUI.height, this._viewSize.height);
             }
         }
-
-        // 尺寸变化后重新计算步进值
         this._calcItemStep();
     }
 
-    // 兼容旧的_onScrolling方法（避免事件绑定失效）
-    private _onScrolling() {
-        this._onScrollingThrottle();
-    }
-
     private _createItem(index: number) {
-        let node = this._pool.size() > 0 ? this._pool.get() : instantiate(this.tmpNode);
+        let node = this._pool.size() > 0 ? this._pool.get()! : instantiate(this.tmpNode);
         (node as any)._listId = index;
         node.parent = this.content;
-        node.active = true; // 确保item激活（对象池取出可能是隐藏的）
+        node.active = true;
         this._setItemPosition(node, index);
-        // 优化：使用数组形式调用，减少临时对象创建
+
+        // 3.x 事件分发
         EventHandler.emitEvents([this._renderEvent], node, index);
     }
 
     onDestroy() {
-        // 优化：取消所有调度，避免内存泄漏
         this.unscheduleAllCallbacks();
-        // 移除事件监听
-        this.node.off('scrolling', this._onScrolling, this);
         this.node.off('scrolling', this._onScrollingThrottle, this);
-        // 清空对象池
+        this.node.off(Node.EventType.TOUCH_START, this._onTouchStart, this);
+        this.node.off(Node.EventType.TOUCH_END, this._onTouchEnd, this);
+        this.node.off(Node.EventType.TOUCH_CANCEL, this._onTouchEnd, this);
         this._pool.clear();
-        // 释放缓存引用
         this._currentVisibleRange = { start: -1, end: -1 };
         this._viewSize = size(0, 0);
     }

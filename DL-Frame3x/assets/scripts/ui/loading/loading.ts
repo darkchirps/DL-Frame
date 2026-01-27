@@ -52,4 +52,5 @@ export class loading extends UIScr {
 UIMgr.register(new UIClass({
     ID: "loading",
     parfabPath: "loading",
+    group: "core",
 }));
