@@ -1,3 +1,6 @@
+/*******************************************************************************
+ * 描述:    虚拟列表(含分页)
+*******************************************************************************/
 import { _decorator, Component, Node, ScrollView, Layout, EventHandler, NodePool, Size, Vec2, Vec3, UITransform, instantiate, js, size, v2, v3 } from 'cc';
 
 const { ccclass, property, disallowMultiple, menu, executionOrder, requireComponent } = _decorator;
@@ -7,7 +10,7 @@ const { ccclass, property, disallowMultiple, menu, executionOrder, requireCompon
 @menu('常用组件/虚拟列表(含分页)')
 @requireComponent(ScrollView)
 @executionOrder(-5000)
-export default class VirtualList extends Component {
+export default class virtualList extends Component {
 
     @property({ type: Node, tooltip: '模板Item' })
     tmpNode: Node | null = null;
@@ -22,21 +25,21 @@ export default class VirtualList extends Component {
         min: 0.1, max: 0.9,
         slide: true,
         step: 0.1,
-        visible: function (this: VirtualList) { return this.isPageView; }
+        visible: function (this: virtualList) { return this.isPageView; }
     })
     turnPageThreshold: number = 0.2;
 
     @property({
         tooltip: '翻页/吸附动画时间 (秒)',
         min: 0,
-        visible: function (this: VirtualList) { return this.isPageView; }
+        visible: function (this: virtualList) { return this.isPageView; }
     })
     scrollDuration: number = 0.3;
 
     @property({
         tooltip: '快速滑动翻页的最小速度 (像素/秒)\n即使距离不够，速度够快也能翻页',
         min: 100,
-        visible: function (this: VirtualList) { return this.isPageView; }
+        visible: function (this: virtualList) { return this.isPageView; }
     })
     autoPageSpeed: number = 500;
 

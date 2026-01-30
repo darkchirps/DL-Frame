@@ -10,6 +10,8 @@ import i18n from "../Component/i18n";
 import labelChange from "../Component/labelChange";
 import listSpfs from "../Component/listSpfs";
 import virtualList from "../Component/virtualList";
+import gradient from "../Shader/gradient/gradient";
+import { maskplus } from "../Component/maskplus";
 
 function resetSiblingIndexByZindex(node: Node) {
     let children = node.children;
@@ -208,21 +210,39 @@ if (!Object.getOwnPropertyDescriptor(Node.prototype, "nodes")) {
                 this.getComponent(Sprite).spriteFrame = v;
             }
         },
+
+        //新增组件
+        /**文本渐变*/
+        gradient: {
+            get(this: Node) {
+                return this.getComponent(gradient);
+            },
+        },
+        /**图片切换*/
         listSpfs: {
             get(this: Node) {
                 return this.getComponent(listSpfs);
             },
         },
+        /**多边形遮罩*/
+        maskplus: {
+            get(this: Node) {
+                return this.getComponent(maskplus);
+            },
+        },
+        /**虚拟列表(含分页)*/
         virtualList: {
             get(this: Node) {
                 return this.getComponent(virtualList);
             },
         },
+        /**数值滚动*/
         labelChange: {
             get(this: Node) {
                 return this.getComponent(labelChange);
             },
         },
+        /**多语言*/
         i18n: {
             get(this: Node) {
                 return this.getComponent(i18n);

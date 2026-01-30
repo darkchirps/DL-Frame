@@ -9,7 +9,7 @@ class _ConfigMgr {
     private static _json = {};
 
     // 对外初始化接口，加载所有bin文件配置
-    static init(bName: string, dir: string, callback: Function) {
+    static initBin(bName: string, dir: string, callback: Function) {
         G.asset.loadDirRes(bName, dir).then((binList) => {
             binList.forEach((bin) => {
                 if (bin instanceof BufferAsset) {

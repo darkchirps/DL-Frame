@@ -19,28 +19,6 @@ export class home extends UIScr {
     }
     //执行一次的逻辑
     showUi() {
-        this.nodes.listNode1.virtualList.bindRenderEvent(this, "renderItem1");
-        this.nodes.listNode1.virtualList.numItems = 10;
-
-        this.nodes.listNode2.virtualList.bindRenderEvent(this, "renderItem2");
-        this.nodes.listNode2.virtualList.numItems = 10;
-
-        this.nodes.listNode3.virtualList.bindRenderEvent(this, "renderItem3");
-        this.nodes.listNode3.virtualList.numItems = 20;
-
-        this.nodes.listNode4.virtualList.bindRenderEvent(this, "renderItem4");
-        this.nodes.listNode4.virtualList.numItems = 20;
-    }
-    renderItem1(node: Node, index: number) {
-
-    }
-    renderItem2(node: Node, index: number) {
-
-    }
-    renderItem3(node: Node, index: number) {
-
-    }
-    renderItem4(node: Node, index: number) {
 
     }
     //按钮管理

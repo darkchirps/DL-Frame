@@ -1,3 +1,6 @@
+/*******************************************************************************
+ * 描述:    图片切换
+*******************************************************************************/
 import { Rect, CCInteger, SpriteFrame, _decorator, Component } from "cc";
 
 const { ccclass, property, menu } = _decorator;

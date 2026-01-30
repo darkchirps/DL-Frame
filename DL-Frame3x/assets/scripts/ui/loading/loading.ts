@@ -12,7 +12,7 @@ export class loading extends UIScr {
     loadStep: number = 0;
 
     start() {
-        // ConfigMgr.init(bundleType.resources, "bin", (binArr) => {
+        // ConfigMgr.initBin(bundleType.resources, "bin", (binArr) => {
         //     G.config = binArr;
         //     this.loadStep++;
         // });
