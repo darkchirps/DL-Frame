@@ -2,8 +2,7 @@ import { Node } from 'cc';
 declare global {
    type tree_home = {
       "home": cc.Node,
-      "video1": cc.Node,
-      "video2": cc.Node,
+      "video": cc.Node,
    }
    type tree_loading = {
       "loading": cc.Node,

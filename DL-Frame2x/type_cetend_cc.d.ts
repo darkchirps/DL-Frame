@@ -7,6 +7,16 @@ type k_v<T> = {
 type k_v1<T> = { [k: string]: T };
 type k_v2<T> = { [k: string | number]: T };
 
+declare class virtualList {
+    bindRenderEvent(uiScr: cc.Component, handler: string)
+    numItems: number;
+    /**
+     * 跳转到指定索引
+     * @param index 目标索引
+     * @param duration 动画时间，0 为瞬间跳转，-1 使用默认值
+     */
+    scrollToIndex(index: number, duration: number = -1)
+}
 declare class timekeep {
     onFinished(callback: Function, target?: any): void;
     play(timer?: number): void;
@@ -56,6 +66,7 @@ declare namespace cc {
         nodesCache: object;
 
         //新增组件
+        /**虚拟列表*/
         get virtualList(): virtualList;
         get labelChange(): labelChange;
         get richTextPlus(): richTextPlusr;

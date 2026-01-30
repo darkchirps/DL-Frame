@@ -360,8 +360,8 @@ export default class customPolygon extends cc.RenderComponent {
         // 创建正五边形顶点
         const radius = 50;
         const points: cc.Vec2[] = [];
-        for (let i = 0; i < 5; i++) {
-            const angle = (Math.PI * 2 * i / 5) - Math.PI / 2; // 从顶部开始
+        for (let i = 0; i < 4; i++) {
+            const angle = (Math.PI * 2 * i / 4) - Math.PI / 2; // 从顶部开始
             const x = radius * Math.cos(angle);
             const y = radius * Math.sin(angle);
             points.push(cc.v2(x, y));
