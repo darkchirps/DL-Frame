@@ -19,7 +19,7 @@ export default class ConfigMgr {
     private static _json = {};
 
     /**对外初始化接口，在合适的时机调用 bin配置文件*/
-    static init(bName: string, dir: string, callback: Function) {
+    static initBin(bName: string, dir: string, callback: Function) {
         G.asset.loadDirRes(bName, dir).then((binList: cc.BufferAsset[]) => {
             binList.forEach((bin: cc.BufferAsset) => {
                 if (bin instanceof cc.BufferAsset) {

@@ -1,0 +1,38 @@
+{
+  "ver": "2.3.7",
+  "uuid": "53032f87-c0ef-4ad5-b48d-2435467fdf50",
+  "importer": "image",
+  "type": "sprite",
+  "wrapMode": "clamp",
+  "filterMode": "bilinear",
+  "premultiplyAlpha": false,
+  "genMipmaps": false,
+  "packable": true,
+  "width": 512,
+  "height": 512,
+  "platformSettings": {},
+  "subMetas": {
+    "angler-fish": {
+      "ver": "1.0.6",
+      "uuid": "53032f87-c0ef-4ad5-b48d-2435467fdf50@6c48a",
+      "importer": "texture",
+      "rawTextureUuid": "53032f87-c0ef-4ad5-b48d-2435467fdf50",
+      "trimType": "auto",
+      "trimThreshold": 1,
+      "rotated": false,
+      "offsetX": 1.5,
+      "offsetY": -4,
+      "trimX": 18,
+      "trimY": 52,
+      "width": 479,
+      "height": 416,
+      "rawWidth": 512,
+      "rawHeight": 512,
+      "borderTop": 0,
+      "borderBottom": 0,
+      "borderLeft": 0,
+      "borderRight": 0,
+      "subMetas": {}
+    }
+  }
+}

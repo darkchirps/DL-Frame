@@ -1,0 +1,38 @@
+{
+  "ver": "2.3.7",
+  "uuid": "e62003b3-8161-45bd-8400-78c0cde21544",
+  "importer": "image",
+  "type": "sprite",
+  "wrapMode": "clamp",
+  "filterMode": "bilinear",
+  "premultiplyAlpha": false,
+  "genMipmaps": false,
+  "packable": true,
+  "width": 512,
+  "height": 512,
+  "platformSettings": {},
+  "subMetas": {
+    "anti-aircraft-gun": {
+      "ver": "1.0.6",
+      "uuid": "e62003b3-8161-45bd-8400-78c0cde21544@6c48a",
+      "importer": "texture",
+      "rawTextureUuid": "e62003b3-8161-45bd-8400-78c0cde21544",
+      "trimType": "auto",
+      "trimThreshold": 1,
+      "rotated": false,
+      "offsetX": 0,
+      "offsetY": 0,
+      "trimX": 16,
+      "trimY": 22,
+      "width": 480,
+      "height": 468,
+      "rawWidth": 512,
+      "rawHeight": 512,
+      "borderTop": 0,
+      "borderBottom": 0,
+      "borderLeft": 0,
+      "borderRight": 0,
+      "subMetas": {}
+    }
+  }
+}

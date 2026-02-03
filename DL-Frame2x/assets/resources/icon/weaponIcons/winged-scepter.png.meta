@@ -1,0 +1,38 @@
+{
+  "ver": "2.3.7",
+  "uuid": "7c91f986-49a2-4a34-94d8-492eafa2dcb3",
+  "importer": "image",
+  "type": "sprite",
+  "wrapMode": "clamp",
+  "filterMode": "bilinear",
+  "premultiplyAlpha": false,
+  "genMipmaps": false,
+  "packable": true,
+  "width": 512,
+  "height": 512,
+  "platformSettings": {},
+  "subMetas": {
+    "winged-scepter": {
+      "ver": "1.0.6",
+      "uuid": "7c91f986-49a2-4a34-94d8-492eafa2dcb3@6c48a",
+      "importer": "texture",
+      "rawTextureUuid": "7c91f986-49a2-4a34-94d8-492eafa2dcb3",
+      "trimType": "auto",
+      "trimThreshold": 1,
+      "rotated": false,
+      "offsetX": 0,
+      "offsetY": 0,
+      "trimX": 28,
+      "trimY": 16,
+      "width": 456,
+      "height": 480,
+      "rawWidth": 512,
+      "rawHeight": 512,
+      "borderTop": 0,
+      "borderBottom": 0,
+      "borderLeft": 0,
+      "borderRight": 0,
+      "subMetas": {}
+    }
+  }
+}

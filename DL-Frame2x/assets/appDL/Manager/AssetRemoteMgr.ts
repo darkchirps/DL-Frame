@@ -11,9 +11,8 @@ export default class AssetRemoteMgr {
      * 加载/获取远程资源路径
      * @param assetUrl 资源url
      * @param assetType 资源后缀 (如 "mp4", "png")
-     * @param sign 资源标识 (用于校验请求有效性，可扩展)
       */
-    public async loadAssetRemote(assetUrl: string, assetType: string, sign: cc.Node | string): Promise<any> {
+    public async loadAssetRemote(assetUrl: string, assetType: string): Promise<any> {
         return new Promise((resolve, reject) => {
             // ================== 1. Web 平台优化 ==================
             // 视频在 Web 端通常不需要下载 Buffer，直接返回 URL 给 VideoPlayer 播放即可

@@ -1,0 +1,38 @@
+{
+  "ver": "2.3.7",
+  "uuid": "f51b621b-aeae-4f9c-9c06-2c03d5e77b98",
+  "importer": "image",
+  "type": "sprite",
+  "wrapMode": "clamp",
+  "filterMode": "bilinear",
+  "premultiplyAlpha": false,
+  "genMipmaps": false,
+  "packable": true,
+  "width": 512,
+  "height": 512,
+  "platformSettings": {},
+  "subMetas": {
+    "harpoon-chain": {
+      "ver": "1.0.6",
+      "uuid": "f51b621b-aeae-4f9c-9c06-2c03d5e77b98@6c48a",
+      "importer": "texture",
+      "rawTextureUuid": "f51b621b-aeae-4f9c-9c06-2c03d5e77b98",
+      "trimType": "auto",
+      "trimThreshold": 1,
+      "rotated": false,
+      "offsetX": 1,
+      "offsetY": -1.5,
+      "trimX": 18,
+      "trimY": 18,
+      "width": 478,
+      "height": 479,
+      "rawWidth": 512,
+      "rawHeight": 512,
+      "borderTop": 0,
+      "borderBottom": 0,
+      "borderLeft": 0,
+      "borderRight": 0,
+      "subMetas": {}
+    }
+  }
+}

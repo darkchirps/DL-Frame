@@ -56,24 +56,4 @@ export default class UIScr extends cc.Component {
     public async getDynamicPic(name: string) {
         return this.getAsset("resources", "imgDynamic/" + name, cc.SpriteFrame) as any;
     }
-    /**总控加载远程或者本地txt解析返回视频 preload静默加载*/
-    public async getRemoteMp4(picName: string) {
-        let conf = G.config.sundry.get();
-        let openUrl = cc.sys.isNative ? conf.cdnUrl : conf.testUrl
-        let picUrl = openUrl + "video/" + picName + ".mp4";
-        if (cc.sys.isNative && cc.assetManager.cacheManager.getCache(picUrl)) {
-            picUrl = cc.assetManager.cacheManager.getCache(picUrl);
-        }
-        return G.assetRemote.loadAssetRemote(picUrl, "mp4-" + picName, this.node);
-    }
-    /**总控加载远程或者本地bin解析返回图片 preload静默加载*/
-    public async getRemoteBin(picName: string) {
-        let conf = G.config.sundry.get();
-        let openUrl = cc.sys.isNative ? conf.cdnUrl : conf.testUrl;
-        let picUrl = openUrl + "bin/" + picName + ".bin";
-        if (cc.sys.isNative && cc.assetManager.cacheManager.getCache(picUrl)) {
-            picUrl = cc.assetManager.cacheManager.getCache(picUrl);
-        }
-        return G.assetRemote.loadAssetRemote(picUrl, "bin-" + picName, this.node);
-    }
 }

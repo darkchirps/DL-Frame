@@ -26,23 +26,6 @@ class myGeneralX {
         const newY = parentPos.y + rotatedY;
         return cc.v3(newX, newY);
     }
-
-    /**返回块的螺丝数
-     * @param id 块的id
-    */
-    public static returnScrewNum(id: number) {
-        let num: number = 0;
-        if (id >= 40) {
-            num = 12;
-        } else if (id >= 30) {
-            num = 9;
-        } else if (id >= 20) {
-            num = 6;
-        } else {
-            num = 3;
-        }
-        return num;
-    }
 }
 export default class myX extends myGeneralX { }
 declare global { var myX: typeof myGeneralX }

@@ -18,10 +18,12 @@ export class home extends UIScr {
         this.btnManager();
     }
     showUi() {
-       
+
     }
     btnManager() {
-
+        this.nodes.play.click(() => {
+            UIMgr.ui.game.show();
+        })
     }
 }
 UIMgr.register(new UIClass({

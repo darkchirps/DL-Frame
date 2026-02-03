@@ -327,6 +327,22 @@ class GeneralX {
         });
         return duplicates;
     }
+    /** 判断两个矩形（由 Node + UITransform 定义的中心坐标和宽高）是否相交 */
+    public static isBoxIntersect(boxA: cc.Node, boxB: cc.Node): boolean {
+        if (!boxA || !boxB) return false;
+        const aLeft = boxA.x - boxA.width / 2;
+        const aRight = boxA.x + boxA.width / 2;
+        const aTop = boxA.y - boxA.height / 2;
+        const aBottom = boxA.y + boxA.height / 2;
+
+        const bLeft = boxB.x - boxB.width / 2;
+        const bRight = boxB.x + boxB.width / 2;
+        const bTop = boxB.y - boxB.height / 2;
+        const bBottom = boxB.y + boxB.height / 2;
+        // 两个矩形不相交的情况：A 在 B 左侧、A 在 B 右侧、A 在 B 上方、A 在 B 下方
+        const separated = aRight < bLeft || aLeft > bRight || aBottom < bTop || aTop > bBottom;
+        return !separated;
+    }
     /**判断一点是否在矩形框内
      * @param touchPoint 坐标
      * @param box 比较的节点

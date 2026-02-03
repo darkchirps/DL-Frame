@@ -10,7 +10,8 @@ import { TaskQueue } from '../../../appDL/System/TaskQueue';
 const { ccclass, property } = cc._decorator;
 
 const loadArr: { bundleName: string; dir: string }[] = [
-    { bundleName: "ui", dir: "" }
+    { bundleName: "ui", dir: "" },
+    { bundleName: "resources", dir: "zoon" },
 ];
 
 @ccclass
@@ -34,12 +35,12 @@ export class loading extends UIScr {
         this.loadStep++;
     }
     private setupLoadingQueue() {
-        this.taskQueue.add(() => this.loadConfig(), '加载bin配置文件');
+        this.taskQueue.add(() => this.loadConfig(), '加载配置文件');
         this.taskQueue.add(() => this.loadAudio(), '加载音频文件');
     }
     loadConfig(): Promise<void> {
         return new Promise((resolve, reject) => {
-            ConfigMgr.init(bundleType.resources, "json", (jsonArr) => {
+            ConfigMgr.initJson(bundleType.resources, "json", (jsonArr) => {
                 G.config = jsonArr;
                 resolve();
             });
@@ -97,9 +98,12 @@ export class loading extends UIScr {
         G.asset.loadDirRes(loadName[id]["bundleName"], loadName[id]["dir"], () => {
             callback && callback();
         }).then((data: cc.Asset[]) => {
-            data.forEach(item => {
+            let id = 0;
+            data.forEach((item, idx) => {
                 if (item instanceof cc.Prefab) {
                 } else if (item instanceof cc.SpriteFrame) {
+                    id += 1;
+                    myG.spriteArr.set(`icon${id}`, item);
                 }
             });
         });

@@ -26,6 +26,8 @@ class mygeneralMgr {
     public static goodsInfos: { [key: string | number]: GoodsInfo } = null;
     /**订阅数据*/
     public static subData: SubscribeData = null;
+    /**存储所有图片*/
+    public static spriteArr: Map<string, cc.SpriteFrame> = new Map();
     /**订阅是否生效 */
     public static get subIsActive() {
         if (myC.lifeSub) return true;
