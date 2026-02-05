@@ -46,7 +46,7 @@ export class game extends UIScr {
     async init() {
         this.nodes.layer.zIndex = 100;
         this.mahPrefab = await this.getPrefab("ui", "game/gameItem");
-        let info = await this.getText("resources", "map/pos_" + 0);
+        let info = await this.getText("resources", "map/pos_" + myC.levelId);
         this.map = info.text.split('\n').filter(line => line.trim() !== '');
         this.gameFlowFunc();
     }
@@ -68,27 +68,70 @@ export class game extends UIScr {
     checkClear() {
         let items = this.clearBlockItems;
         this.clearBlockItems = [];
-        items.forEach(spr => {
-            this.clearMahjong.push(spr);
-            spr.node.position = spr.nodePos;
-            spr.signTip = true;
-            cc.tween(spr.node)
-                .to(0.2, { opacity: 0 })
-                .call(() => {
-                    spr.resetNodeBack();
-                })
-                .start();
+        this.clearTween(items, (pos) => {
+            items.forEach(spr => {
+                this.clearMahjong.push(spr);
+                spr.signTip = true;
+                cc.tween(spr.node)
+                    .to(0.08, { opacity: 0, position: pos })
+                    .call(() => spr.resetNodeBack())
+                    .start();
+            });
+            this.blockMap.forEach((spr, key) => {
+                if (!spr.signTip) spr.showShadow();
+            });
+            this.checkGameOver();
         });
-        this.blockMap.forEach((spr, key) => {
-            if (!spr.signTip) spr.showShadow();
-        });
-        this.checkGameOver();
+
+    }
+    /**消除前的动画*/
+    clearTween(cItems: gameItem[], callback = null) {
+        const [item1, item2] = cItems;
+
+        item1.node.parent = this.nodes.layer;
+        item2.node.parent = this.nodes.layer;
+
+        const centerX = (item1.itemInfo.wNum + item2.itemInfo.wNum) / 2;
+        const width = item1.node.getContentSize().width;
+        const moveX1 = item1.itemInfo.wNum > centerX ? width : -width;
+        const moveX2 = item2.itemInfo.wNum > centerX ? width : -width;
+        const startPos1 = item1.node.position;
+        const startPos2 = item2.node.position;
+
+        const centerY = (item1.node.y + item2.node.y) / 2;
+
+        const adjustedMoveX1 = item1.itemInfo.wNum === item2.itemInfo.wNum ? (startPos1.y > startPos2.y ? width : -width) : moveX1;
+        const adjustedMoveX2 = item1.itemInfo.wNum === item2.itemInfo.wNum ? (startPos1.y > startPos2.y ? -width : width) : moveX2;
+
+        const endPos1 = cc.v3(startPos1.x + adjustedMoveX1, centerY);
+        const endPos2 = cc.v3(startPos2.x + adjustedMoveX2, centerY);
+
+        const centerPos1 = cc.v3((endPos1.x + startPos1.x) / 2, (endPos1.y + startPos1.y) / 2);
+        const centerPos2 = cc.v3((endPos2.x + startPos2.x) / 2, (endPos2.y + startPos2.y) / 2);
+
+        const endPosTo = cc.v3((startPos1.x + startPos2.x) / 2, centerY);
+        X.bezierTween(item1.node, 0.12, startPos1, centerPos1, endPos1)
+            .start();
+        X.bezierTween(item2.node, 0.12, startPos2, centerPos2, endPos2)
+            .call(() => callback && callback(endPosTo))
+            .start();
     }
     /**检测游戏结束*/
     checkGameOver() {
         let overs: number = 0;
-        this.blockMap.forEach((spr, key) => { if (!spr.signTip) overs++; });
-        if (overs === 0) this.scheduleOnce(() => UIMgr.ui.mahHome.show(), 1);
+        let shadows: number = 0;
+        this.blockMap.forEach((spr, key) => {
+            if (!spr.signTip) overs++;
+            if (!spr.shadowTip) shadows++;
+        });
+        if (overs === 0) {
+            myC.levelId += 1;
+            this.scheduleOnce(() => UIMgr.ui.home.show(), 1);
+        } else {
+            if (shadows == 1) { 
+                
+            }
+        }
     }
     /**初始化每层麻将*/
     initLayerMahjong() {
@@ -279,13 +322,13 @@ export class game extends UIScr {
     }
     //按钮管理
     btnManager() {
-        // this.nodes.backBtn.click(() => {
-        //     this.blockMap.forEach((block) => {
-        //         block.resetNode();
-        //         Pool.putPool(block.node, "gameItem");
-        //     });
-        //     UIMgr.ui.mahHome.show();
-        // })
+        this.nodes.backBtn.click(() => {
+            this.blockMap.forEach((block) => {
+                block.resetNode();
+                Pool.putPool(block.node, "gameItem");
+            });
+            UIMgr.ui.home.show();
+        })
     }
 }
 UIMgr.register(new UIClass({

@@ -1,33 +1,16 @@
 export enum myCType {//顺序往下增加
     firstOpen = "firstOpen",//所有需要首次打开的功能都用这个 或者记录时间戳
     firstGame = "firstGame",//是否首次进游戏
-    deepUserId = "deepUserId",//深度用户id 1非深链2深链
-    lifeSub = "lifeSub",//是否购买终身订阅
-    removeAds = "removeAds",//去广告
+    levelId = "levelId",//当前关卡
 }
 /**本项目所需缓存信息*/
 class myCache {//新增在头部增加，在以下增加新缓存
-
-    static get removeAds() {
-        return this.get(myCType.removeAds);
+    static get levelId() {
+        return this.get(myCType.levelId);
     }
-    static set removeAds(v: number) {
+    static set levelId(v: number) {
         if (v === null) v = 0;
-        this.set(myCType.removeAds, v);
-    }
-    static get lifeSub() {
-        return this.get(myCType.lifeSub);
-    }
-    static set lifeSub(v: boolean) {
-        if (v === null) v = false;
-        this.set(myCType.lifeSub, v);
-    }
-    static get deepUserId() {
-        return this.get(myCType.deepUserId);
-    }
-    static set deepUserId(v: number) {
-        if (v === null) v = 0;
-        this.set(myCType.deepUserId, v);
+        this.set(myCType.levelId, v);
     }
     static get firstGame() {
         return this.get(myCType.firstGame);
@@ -121,9 +104,8 @@ class myCache {//新增在头部增加，在以下增加新缓存
             if (key && key.indexOf(prefix) === 0) toRemove.push(key);
         }
         for (const k of toRemove) cc.sys.localStorage.removeItem(k);
-        this.deepUserId = id;
     }
-    static signKey: string = "screw";
+    static signKey: string = "clear";
 }
 export default class myC extends myCache { }
 declare global { var myC: typeof myCache }

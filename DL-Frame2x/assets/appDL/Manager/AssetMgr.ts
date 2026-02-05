@@ -172,27 +172,5 @@ export default class AssetMgr {
     public async getJson(bundleName: string = "ui", path: string, assetTag?: string): Promise<cc.JsonAsset> {
         return this.getAsset(bundleName, path, assetTag, cc.JsonAsset) as any;
     }
-    /**总控加载远程或者本地txt解析返回视频 preload静默加载*/
-    public async getMp4Mgr(picName: string, preload?: boolean, node?: cc.Node | string) {
-        let conf = G.config.sundry.get();
-        let openUrl = cc.sys.isNative ? conf.cdnUrl : conf.testUrl
-        let picUrl = openUrl + "video/" + picName + ".mp4";
-        if (cc.sys.isNative && cc.assetManager.cacheManager.getCache(picUrl)) {
-            if (preload) return;
-            picUrl = cc.assetManager.cacheManager.getCache(picUrl);
-        }
-        return G.assetRemote.loadAssetRemote(picUrl, "mp4-" + picName, node);
-    }
-    /**总控加载远程或者本地bin解析返回图片 preload静默加载*/
-    public async getBinMgr(picName: string, preload?: boolean, node?: cc.Node | string) {
-        let conf = G.config.sundry.get();
-        let openUrl = cc.sys.isNative ? conf.cdnUrl : conf.testUrl;
-        let picUrl = openUrl + "bin/" + picName + ".bin";
-        if (cc.sys.isNative && cc.assetManager.cacheManager.getCache(picUrl)) {
-            if (preload) return;
-            picUrl = cc.assetManager.cacheManager.getCache(picUrl);
-        }
-        return G.assetRemote.loadAssetRemote(picUrl, "bin-" + picName, node);
-    }
 }
 globalThis["AssetMgr"] = AssetMgr;

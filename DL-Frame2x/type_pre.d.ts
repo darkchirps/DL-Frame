@@ -4,6 +4,7 @@ declare global {
       "game": cc.Node,
       "mapNode": cc.Node,
       "layer": cc.Node,
+      "backBtn": cc.Node,
    }
    type tree_gameItem = {
       "gameItem": cc.Node,

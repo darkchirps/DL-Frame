@@ -50,25 +50,6 @@ export default class UIMgr {
             }
         }
     }
-
-    /**设置层级*/
-    public static setZIndex(uiClass: UIClass, state: boolean = true) {
-        var maxZindex = 0;
-        if (!this.ui[uiClass.uiConfig.ID]?.node?.isValid && state) return;
-        for (let id in this.ui) {
-            let _uiclass = this.ui[id];
-            if (_uiclass.uiConfig.ID != uiClass.uiConfig.ID && _uiclass.isShow && _uiclass.node.zIndex > maxZindex) {
-                maxZindex = _uiclass.node.zIndex;
-            }
-        }
-        if (state && uiClass._parentNode == null) {
-            uiClass.node.zIndex = maxZindex + 10;
-        }
-        if (uiClass._parentNode == null) {
-            G.main.rootMaskNode.zIndex = state ? maxZindex + 1 : maxZindex - 9;
-        }
-    }
-
     /**
      * 当任意UI被关闭时，触发该方法
      * @param uiClass 由该uiClass关闭引起的
@@ -89,6 +70,23 @@ export default class UIMgr {
             }
         }
         this.setZIndex(uiClass, false);
+    }
+    /**设置层级*/
+    public static setZIndex(uiClass: UIClass, state: boolean = true) {
+        var maxZindex = 0;
+        if (!this.ui[uiClass.uiConfig.ID]?.node?.isValid && state) return;
+        for (let id in this.ui) {
+            let _uiclass = this.ui[id];
+            if (_uiclass.uiConfig.ID != uiClass.uiConfig.ID && _uiclass.isShow && _uiclass.node.zIndex > maxZindex) {
+                maxZindex = _uiclass.node.zIndex;
+            }
+        }
+        if (state && uiClass._parentNode == null) {
+            uiClass.node.zIndex = maxZindex + 10;
+        }
+        if (uiClass._parentNode == null) {
+            G.main.rootMaskNode.zIndex = state ? maxZindex + 1 : maxZindex - 9;
+        }
     }
 }
 

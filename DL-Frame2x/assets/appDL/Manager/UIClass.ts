@@ -104,7 +104,7 @@ export class UIClass {
         UIMgr.onUIRemove(this);
         this.event.emit("remove");
         this.event.clear();
-        G.asset.decRefByTag(this.uiConfig.ID);
+        // G.asset.decRefByTag(this.uiConfig.ID);
     }
     /**
      * 设置该UI的父节点，在show之前调用

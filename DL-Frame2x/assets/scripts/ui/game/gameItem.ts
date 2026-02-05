@@ -26,7 +26,7 @@ export class gameItem extends cc.Component {
     nodeParent: cc.Node = null;
     /**该麻将的初始坐标*/
     nodePos: cc.Vec3 = null;
-    /**标记 用作模拟消除逻辑中使用，为生成id*/
+    /**标记 用作模拟消除逻辑中使用 未消除的false，为生成id*/
     signTip: boolean = false;
     /**标记 可点击false*/
     shadowTip: boolean = false;
@@ -89,7 +89,7 @@ export class gameItem extends cc.Component {
             this.game.clearBlockItems = [this];
             this.node.parent = this.game.nodes.mapNode.getChildByName("layer" + this.itemInfo.layer.toString());
             this.node.position = this.nodePos;
-            this.node.zIndex = this.itemInfo.wNum * 100 + this.itemInfo.hNum;
+            this.node.zIndex = this.itemInfo.wNum * 10; + this.itemInfo.hNum * 10;
             this.breatheTweenFunc();
         }
         let nodeTo: gameItem = null;
@@ -148,7 +148,7 @@ export class gameItem extends cc.Component {
         this.node.position = cc.v3(posx, posy);
 
         this.nodePos = this.node.position.clone();
-        this.node.zIndex = this.itemInfo.wNum * 100 + this.itemInfo.hNum;
+        this.node.zIndex = this.itemInfo.wNum * 10; + this.itemInfo.hNum * 10;
         this.node.children.forEach(node => node.scale = scale);
         this.showShadow();
     }
@@ -193,11 +193,10 @@ export class gameItem extends cc.Component {
         this.node.parent = null;
         this.nodes.icon.sprite.spriteFrame = null;
         this.node.scale = 1;
-        this.nodes.icon.scale = 1;
-        this.nodes.shadow.scale = 1;
-        this.nodes.tip.scale = 1;
+        this.node.children.forEach(node => node.scale = 1);
         this.shadowTip = false;
         this.signTip = false;
+        this.node.getComponent(gameItem).destroy();
     }
     resetBase() {
         this.tipTween?.stop();
@@ -214,5 +213,6 @@ export class gameItem extends cc.Component {
         this.node.off(cc.Node.EventType.TOUCH_START, this.onTouchStart, this);
         this.node.off(cc.Node.EventType.TOUCH_MOVE, this.onTouchMove, this);
         this.node.off(cc.Node.EventType.TOUCH_END, this.onTouchEnd, this);
+        this.node.off(cc.Node.EventType.TOUCH_CANCEL, this.onTouchEnd, this);
     }
 }

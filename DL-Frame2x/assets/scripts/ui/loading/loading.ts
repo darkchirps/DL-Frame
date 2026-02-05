@@ -66,9 +66,6 @@ export class loading extends UIScr {
         let loadSpeed: number = 0.3;
         if (this.loadStep >= 3) {
             loadSpeed = 0.7;
-        } else if (this.nodes.pro.progressBar.progress >= 0.99) {
-            if (myC.deepUserId == 0) myC.deepUserId = 1;
-            loadSpeed = 0;
         } else if (this.nodes.pro.progressBar.progress > 0.9) {
             loadSpeed = 0.01;
         } else if (this.nodes.pro.progressBar.progress > 0.7) {
