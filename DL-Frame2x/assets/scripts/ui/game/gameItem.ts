@@ -26,6 +26,7 @@ export class gameItem extends cc.Component {
     nodeParent: cc.Node = null;
     /**该麻将的初始坐标*/
     nodePos: cc.Vec3 = null;
+    ndoeZindex: number = 0;
     /**标记 用作模拟消除逻辑中使用 未消除的false，为生成id*/
     signTip: boolean = false;
     /**标记 可点击false*/
@@ -89,7 +90,7 @@ export class gameItem extends cc.Component {
             this.game.clearBlockItems = [this];
             this.node.parent = this.game.nodes.mapNode.getChildByName("layer" + this.itemInfo.layer.toString());
             this.node.position = this.nodePos;
-            this.node.zIndex = this.itemInfo.wNum * 10; + this.itemInfo.hNum * 10;
+            this.node.zIndex = this.ndoeZindex;
             this.breatheTweenFunc();
         }
         let nodeTo: gameItem = null;
@@ -148,7 +149,8 @@ export class gameItem extends cc.Component {
         this.node.position = cc.v3(posx, posy);
 
         this.nodePos = this.node.position.clone();
-        this.node.zIndex = this.itemInfo.wNum * 10; + this.itemInfo.hNum * 10;
+        this.node.zIndex = this.itemInfo.wNum * 10 + this.itemInfo.hNum * 10;
+        this.ndoeZindex = this.node.zIndex;
         this.node.children.forEach(node => node.scale = scale);
         this.showShadow();
     }
@@ -181,7 +183,7 @@ export class gameItem extends cc.Component {
         this.resetBase();
         this.node.parent = this.nodeParent;
         this.node.position = this.nodePos;
-        this.node.zIndex = this.itemInfo.wNum * 100 + this.itemInfo.hNum;
+        this.node.zIndex = 0;
         this.node.active = false;
         this.node.scale = 1;
     }

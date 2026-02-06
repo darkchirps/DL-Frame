@@ -4,7 +4,18 @@ declare global {
       "game": cc.Node,
       "mapNode": cc.Node,
       "layer": cc.Node,
+      "topNode": cc.Node,
       "backBtn": cc.Node,
+      "New Label": cc.Node,
+      "replayBtn": cc.Node,
+      "New Label": cc.Node,
+      "bottomNode": cc.Node,
+      "propTipBtn": cc.Node,
+      "New Label": cc.Node,
+      "propRefreshBtn": cc.Node,
+      "New Label": cc.Node,
+      "propBoomBtn": cc.Node,
+      "New Label": cc.Node,
    }
    type tree_gameItem = {
       "gameItem": cc.Node,

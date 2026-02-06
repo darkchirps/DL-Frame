@@ -2,6 +2,7 @@ import UIMgr from '../../../appDL/Manager/UIMgr';
 import UIScr from '../../../appDL/Manager/UIScr';
 import { UIClass } from '../../../appDL/Manager/UIClass';
 import { gameItem } from './gameItem';
+import { gamePropMgr } from './gamePropMgr';
 const { ccclass, property } = cc._decorator;
 /**块或地图配置*/
 export class mahMapType {
@@ -38,7 +39,11 @@ export class game extends UIScr {
     /**记录消除麻将*/
     clearMahjong: Array<gameItem> = [];
 
+    gamePropMgr: gamePropMgr;
+
     async start() {
+        this.gamePropMgr = new gamePropMgr(this);
+        this.gamePropMgr.init();
         this.init();
         this.btnManager();
     }
@@ -80,9 +85,10 @@ export class game extends UIScr {
             this.blockMap.forEach((spr, key) => {
                 if (!spr.signTip) spr.showShadow();
             });
-            this.checkGameOver();
+            this.scheduleOnce(() => {
+                this.checkGameOver();
+            }, 0.1)
         });
-
     }
     /**消除前的动画*/
     clearTween(cItems: gameItem[], callback = null) {
@@ -118,20 +124,41 @@ export class game extends UIScr {
     }
     /**检测游戏结束*/
     checkGameOver() {
-        let overs: number = 0;
-        let shadows: number = 0;
-        this.blockMap.forEach((spr, key) => {
-            if (!spr.signTip) overs++;
-            if (!spr.shadowTip) shadows++;
-        });
-        if (overs === 0) {
+        let arr = this.getHaveClick();
+        if (arr.haveSprs.length === 0) {//过关
             myC.levelId += 1;
             this.scheduleOnce(() => UIMgr.ui.home.show(), 1);
         } else {
-            if (shadows == 1) { 
-                
+            let blockIds = arr.shadowSprs.map(v => v.blockId);
+            let matchs = X.countElementPairsTo(blockIds);
+            if (matchs.totalPairs == 0) { //无可匹配的
+                if (arr.shadowSprs.length == 1) {//如果只有一个可点击的 自动消除匹配
+                    let matchSpr: gameItem = null;
+                    arr.haveSprs.forEach((spr) => {
+                        if (spr.blockId == arr.shadowSprs[0].blockId && spr.itemInfo != arr.shadowSprs[0].itemInfo) {
+                            matchSpr = spr;
+                        }
+                    })
+                    this.clearBlockItems = [arr.shadowSprs[0], matchSpr];
+                } else {//多个 但是没有消除了的
+                    Tip.show("无可消除的");
+                }
             }
         }
+    }
+    /**获取当前存在的和当前可点击的*/
+    getHaveClick(): { haveSprs: gameItem[], shadowSprs: gameItem[] } {
+        let haveSpr: gameItem[] = [];//当前存在的
+        let shadowSpr: gameItem[] = [];//可点击的
+        this.blockMap.forEach((spr, key) => {
+            if (spr.node.active && !spr.signTip) {
+                haveSpr.push(spr);
+            }
+            if (spr.node.active && !spr.shadowTip) {
+                shadowSpr.push(spr);
+            }
+        });
+        return { haveSprs: haveSpr, shadowSprs: shadowSpr }
     }
     /**初始化每层麻将*/
     initLayerMahjong() {
@@ -322,6 +349,17 @@ export class game extends UIScr {
     }
     //按钮管理
     btnManager() {
+        this.nodes.replayBtn.click(() => {
+            this.blockMap.forEach((block) => {
+                block.node.active = false;
+                block.resetNode();
+                Pool.putPool(block.node, "gameItem");
+            });
+            this.scheduleOnce(() => {
+                this.blockMap = new Map();
+                this.gameFlowFunc();
+            })
+        })
         this.nodes.backBtn.click(() => {
             this.blockMap.forEach((block) => {
                 block.resetNode();
