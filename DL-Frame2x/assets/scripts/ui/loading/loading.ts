@@ -53,7 +53,6 @@ export class loading extends UIScr {
             });
         });
     }
-
     enterFunc() {
         platformMgr.showAd(AdsType.AT_Banner_Bottom, AdScene.BA_001);
         if (C.languageId == '') {

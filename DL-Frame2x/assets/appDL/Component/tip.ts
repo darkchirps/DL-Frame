@@ -43,7 +43,6 @@ class TipSystem {
             const newTween = this._createTipAnimation(node, tipId, content);
             // 存储新提示
             this._activeTips.set(content, { id: tipId, node, tween: newTween });
-
         } catch (error) {
             console.error('Failed to show tip:', error);
         }

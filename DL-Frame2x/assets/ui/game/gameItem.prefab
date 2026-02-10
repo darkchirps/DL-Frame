@@ -440,8 +440,8 @@
       "__type__": "TypedArray",
       "ctor": "Float64Array",
       "array": [
-        6.5,
-        -4,
+        5.5,
+        -6,
         0,
         0,
         0,
@@ -484,7 +484,7 @@
       "__uuid__": "2e6fad52-8863-4935-a47d-f1cba9912b66"
     },
     "_type": 0,
-    "_sizeMode": 1,
+    "_sizeMode": 0,
     "_fillType": 0,
     "_fillCenter": {
       "__type__": "cc.Vec2",

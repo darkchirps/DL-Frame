@@ -13,9 +13,9 @@ export class gamePropMgr {
     btnManager() {
         this.game.nodes.propTipBtn.click(() => {
             let infoArr = this.game.getHaveClick();
-            let clickSprs = infoArr[1];
+            let clickSprs = infoArr.shadowSprs;
             if (clickSprs.length == 1) return;
-            
+
         })
     }
 }

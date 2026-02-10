@@ -1,5 +1,6 @@
 import { LanguageType } from "../../appDL/System/GlobalEventEnum";
-import { AdsType, BillingType, CallBackStatus, GoodsInfo, MailSource, ShopId, SubType, UserType } from "../../scripts/project/mySystemEnum";
+import { AdsType, CallBackStatus, GoodsInfo } from "../../scripts/project/mySystemEnum";
+import { BillingType, SubType } from "./myGameEnum";
 
 export enum PayState {
     /**未知 */
@@ -71,36 +72,13 @@ export default class platformMgr {
         }
     }
 
-    /**接收深链信息 */
-    public static reciveDeepLinkInfo(info: string) {
-        if (info === 'unRevice' || !info || info.length <= 0) {
-            myC.deepUserId = UserType.E_NO_DEEP_LINK;
-            platformMgr.onStatis("", { "deep_link": 0 }, EventType.UserSetOnce);
-            return;
-        }
-        if (myC.deepUserId === UserType.E_DEEP_LINK) return; // 深链用户，不再修改
-        let strs = info.split("=");
-        if (strs && strs[1]) {
-            let userConfId = Number(strs[1]);
-            if (!isNaN(userConfId)) {
-                myC.deepUserId = userConfId == 1 ? 2 : 1;
-                platformMgr.onStatis("", { "deep_link": 1 }, EventType.UserSetOnce);
-            } else {
-
-            }
-        }
-    }
-
     /**检测广告
      * @param type 广告类型
      * @param placeId 广告id
      */
     public static checkAd(type: AdsType, placeId: string) {
         let loaded = false;
-        if (!cc.sys.isNative) {
-            loaded = true;
-            return loaded;
-        }
+        if (!cc.sys.isNative) return true;
         if (cc.sys.os === cc.sys.OS_ANDROID) {
             console.warn('call android checkAd');
             loaded = jsb.reflection.callStaticMethod(CLASS_NAME, "checkAd", "(ILjava/lang/String;)Z", type, placeId);
@@ -127,23 +105,16 @@ export default class platformMgr {
      */
     public static showAd(type: AdsType, placeId: string, adCb?: Function, nextAd: boolean = false) {
         if (type == AdsType.AT_Banner_Bottom) {
-            if (myC.removeAds > 1 || myG.subIsActive) {
-                console.warn(myC.removeAds > 1 ? '已购买去广告, 不播放插屏、底部banner' : '订阅生效中');
-                return;
-            }
+            // if (myC.removeAds > 1) {
+            //     console.warn(myC.removeAds > 1 ? '已购买去广告, 不播放插屏、底部banner' : '订阅生效中');
+            //     return;
+            // }
         }
         if (!placeId) placeId = '';
         // console.log("showAd========>" + type, placeId);
-        if (adCb) {
-            this.adCallBack = adCb;
-        } else {
-            this.adCallBack = null;
-        }
+        this.adCallBack = adCb ?? null;
         if (!cc.sys.isNative) {
-            if (type == AdsType.AT_Interstitial || type === AdsType.AT_RewardVideo) {
-                if (adCb) adCb(CallBackStatus.CALL_SUCCESS);
-            }
-            return;
+            if ((type == AdsType.AT_Interstitial || type === AdsType.AT_RewardVideo) && adCb) return adCb(CallBackStatus.CALL_SUCCESS);
         }
         if (cc.sys.os === cc.sys.OS_ANDROID) {
             console.warn('call android showAd');
@@ -179,11 +150,6 @@ export default class platformMgr {
         if (mAdInfo.mType === AdsType.AT_RewardVideo) {
             platformMgr.onStatis("", { "total_rewad_count": 1 }, EventType.UserAdd);
         }
-    }
-
-    public static onAdState(adInfo: any) {
-        let mAdInfo = JSON.parse(adInfo);
-        console.log(`onAdState: ${mAdInfo}`);
     }
 
     /**关闭广告 */
@@ -304,6 +270,7 @@ export default class platformMgr {
             this.paySuccess('');
         }
     }
+    
     /**订单消息 */
     public static sendSkuDetails(msg: string) {
         console.log('支付信息: ' + msg);
@@ -322,19 +289,16 @@ export default class platformMgr {
                 pType: pay.mPayType,
                 subTime: pay.mPurchaseTime
             }
-            if (!myC.lifeSub && Number(gInfo.pType) === BillingType.SUBS && gInfo.subTime > 0 && gInfo.status === CallBackStatus.CALL_SUCCESS) {
+            if (Number(gInfo.pType) === BillingType.SUBS && gInfo.subTime > 0 && gInfo.status === CallBackStatus.CALL_SUCCESS) {
                 myG.subData = {
                     subType: gInfo.payId,
                     buyTime: gInfo.subTime
                 }
             }
             if (gInfo.payId === SubType.LifeSub && gInfo.status === CallBackStatus.CALL_SUCCESS) {// 恢复终身订阅
-                myC.lifeSub = true;
-                myC.removeAds = ShopId.AdBlock;
                 this.closeAD(AdsType.AT_Banner_Bottom);
             }
-            if (gInfo.payId === ShopId.AdBlock && gInfo.status === CallBackStatus.CALL_SUCCESS) {// 恢复去广告
-                myC.removeAds = ShopId.AdBlock;
+            if (gInfo.status === CallBackStatus.CALL_SUCCESS) {// 恢复去广告
                 this.closeAD(AdsType.AT_Banner_Bottom);
             }
 
@@ -379,6 +343,7 @@ export default class platformMgr {
             jsb.reflection.callStaticMethod(IOS_CLASS_NAME, "saveTextureToLocal:", imagePath);
         }
     }
+
     /**接收保存图片回调方法 */
     public static sendSaveResult(msg: string) {
         if (!this._saveImgCB) return;
@@ -402,6 +367,7 @@ export default class platformMgr {
             console.warn('call ios saveTextureToLocal');
         }
     }
+
     /**接收保存视频回调方法 */
     public static sendSaveVideoResult(msg: string) {
         if (!this._saveVideoCB) return;
@@ -417,22 +383,20 @@ export default class platformMgr {
      * @param levelId 关卡Id
      */
     public static showMail() {
-        let mailSource = MailSource.Setting;
         let version = platformMgr.getVersion();
         let country = platformMgr.getCountryCode();
         let userLanguage = C.languageId;
         let language = `${userLanguage};${userLanguage}`;
         let content =
             `MAILTYPE:feedback\n` +
-            `MAILSOURCE:${mailSource}\n` +
             `VERSION:${version}\n` +
             `COUNTRY:${country}\n` +
             `LANGUAGE:${language}\n` +
             `PACKAGE:${G.config.sundry.get().package}\n`;
-
         console.log(content);
         platformMgr.sendEmail(content);
     }
+
     /**发送邮件 */
     public static sendEmail(content: string) {
         if (!cc.sys.isNative) {
@@ -465,9 +429,7 @@ export default class platformMgr {
 
     /**本地推送 */
     public static localNotify(title: string, content: string, time: number, btnTitle: string) {
-        if (!cc.sys.isNative) {
-            return;
-        }
+        if (!cc.sys.isNative) return;
         if (cc.sys.os === cc.sys.OS_ANDROID) {
             console.warn('call android localNotify');
             jsb.reflection.callStaticMethod(CLASS_NAME, "localNotify", "(Ljava/lang/String;Ljava/lang/String;ILjava/lang/String;)V", title, content, time, btnTitle);
@@ -553,6 +515,7 @@ export default class platformMgr {
             jsb.reflection.callStaticMethod(CLASS_NAME, "selectImageFromGallery", "()V");
         }
     }
+
     /**接收android 图片 */
     public static reciveImgFromAndroid(data: string) {
         myG.picData = data;

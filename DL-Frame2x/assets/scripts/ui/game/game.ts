@@ -24,8 +24,11 @@ export class game extends UIScr {
     blockMap: Map<string, gameItem> = new Map();
     /**消除路线*/
     clearHaveItems: Array<gameItem> = [];
-    /**存选中的麻将 发生消除*/
+    /**是否可以重玩*/
+    isReplay: boolean = false;
+
     _clearBlockItems: Array<gameItem> = [];
+    /**存选中的麻将 发生消除*/
     get clearBlockItems() {
         return this._clearBlockItems;
     }
@@ -82,18 +85,15 @@ export class game extends UIScr {
                     .call(() => spr.resetNodeBack())
                     .start();
             });
-            this.blockMap.forEach((spr, key) => {
+            this.blockMap.forEach((spr) => {
                 if (!spr.signTip) spr.showShadow();
             });
-            this.scheduleOnce(() => {
-                this.checkGameOver();
-            }, 0.1)
+            this.scheduleOnce(() => this.checkGameOver(), 0.1)
         });
     }
     /**消除前的动画*/
     clearTween(cItems: gameItem[], callback = null) {
         const [item1, item2] = cItems;
-
         item1.node.parent = this.nodes.layer;
         item2.node.parent = this.nodes.layer;
 
@@ -135,9 +135,7 @@ export class game extends UIScr {
                 if (arr.shadowSprs.length == 1) {//如果只有一个可点击的 自动消除匹配
                     let matchSpr: gameItem = null;
                     arr.haveSprs.forEach((spr) => {
-                        if (spr.blockId == arr.shadowSprs[0].blockId && spr.itemInfo != arr.shadowSprs[0].itemInfo) {
-                            matchSpr = spr;
-                        }
+                        if (spr.blockId == arr.shadowSprs[0].blockId && spr.itemInfo != arr.shadowSprs[0].itemInfo) matchSpr = spr;
                     })
                     this.clearBlockItems = [arr.shadowSprs[0], matchSpr];
                 } else {//多个 但是没有消除了的
@@ -151,12 +149,8 @@ export class game extends UIScr {
         let haveSpr: gameItem[] = [];//当前存在的
         let shadowSpr: gameItem[] = [];//可点击的
         this.blockMap.forEach((spr, key) => {
-            if (spr.node.active && !spr.signTip) {
-                haveSpr.push(spr);
-            }
-            if (spr.node.active && !spr.shadowTip) {
-                shadowSpr.push(spr);
-            }
+            if (spr.node.active && !spr.signTip) haveSpr.push(spr);
+            if (spr.node.active && !spr.shadowTip) shadowSpr.push(spr);
         });
         return { haveSprs: haveSpr, shadowSprs: shadowSpr }
     }
@@ -186,17 +180,14 @@ export class game extends UIScr {
         let rand = this.randowIconKind(this.mapData[0].length / 2);
         let arr = X.randomRange(1, myG.spriteArr.size, rand);
         const totalNeeded = this.mapData[0].length / 2;
-
         if (rand < totalNeeded) {
             const needed = totalNeeded - rand;
             const baseCount = Math.floor(needed / arr.length);
             const remainder = needed % arr.length;
-            // 批量添加基础倍数
-            for (let i = 0; i < baseCount; i++) {
+            for (let i = 0; i < baseCount; i++) {// 批量添加基础倍数
                 arr.push(...arr.slice(0, arr.length));
             }
-            // 添加余数部分
-            if (remainder > 0) {
+            if (remainder > 0) {// 添加余数部分
                 const randomIndices = X.randomRange(0, arr.length - 1, remainder);
                 arr.push(...randomIndices.map(i => arr[i]));
             }
@@ -213,8 +204,8 @@ export class game extends UIScr {
             if (brightItems.length == 0) continue;
             this.clearHaveItems.push(brightItems[brightItems.length - 1]);
             this.clearHaveItems.push(brightItems[brightItems.length - 2]);
-            this.clearHaveItems.forEach((spr) => spr.signTip = true);
-            this.blockMap.forEach((spr, index) => { if (!spr.signTip) spr.showShadow(); })
+            this.clearHaveItems.forEach(spr => spr.signTip = true);
+            this.blockMap.forEach(spr => { if (!spr.signTip) spr.showShadow(); })
         }
         //还原标记
         this.clearHaveItems.forEach(spr => spr.signTip = false);
@@ -228,6 +219,7 @@ export class game extends UIScr {
     }
     /** 进场动效 */
     startEffect() {
+        this.isReplay = true;
         const offsetX = 500;
         // 根据位置将节点分为左右两组
         const midPoint = (this.mapInfo.wNum - 1) / 2;
@@ -264,6 +256,7 @@ export class game extends UIScr {
             spr.node.opacity = 255;
             layerEnterEffect(spr, spr.itemInfo.layer, -offsetX);
         });
+        this.scheduleOnce(() => this.isReplay = false, this.mapInfo.layer * 0.2)
     }
     /**创建麻将方块*/
     creatorMahjong(idx: number, idy: number, layer: number = 0) {
@@ -350,6 +343,7 @@ export class game extends UIScr {
     //按钮管理
     btnManager() {
         this.nodes.replayBtn.click(() => {
+            if (this.isReplay) return;
             this.blockMap.forEach((block) => {
                 block.node.active = false;
                 block.resetNode();

@@ -63,19 +63,19 @@ export class UIClass {
     changeDiamondState(state: boolean) {
         if (this.uiConfig.currency) {
             if (state) {//显示
-                G.main.CurrencyHaveName.push(this.uiConfig.ID);
-                G.main.CurrencyNode.parent = this.node;
-                G.main.CurrencyNode.active = true;
+                G.main.currencyHaveName.push(this.uiConfig.ID);
+                G.main.currencyNode.parent = this.node;
+                G.main.currencyNode.active = true;
             } else {
-                const index = G.main.CurrencyHaveName.indexOf(this.uiConfig.ID);
+                const index = G.main.currencyHaveName.indexOf(this.uiConfig.ID);
                 if (index > -1) {
-                    G.main.CurrencyHaveName.splice(index, 1);
+                    G.main.currencyHaveName.splice(index, 1);
                 }
-                if (G.main.CurrencyHaveName.length == 0) {
-                    G.main.CurrencyNode.parent = G.main.other;
-                    G.main.CurrencyNode.active = false;
+                if (G.main.currencyHaveName.length == 0) {
+                    G.main.currencyNode.parent = G.main.other;
+                    G.main.currencyNode.active = false;
                 } else {
-                    G.main.CurrencyNode.parent = UIMgr.get(G.main.CurrencyHaveName[0]).node;
+                    G.main.currencyNode.parent = UIMgr.get(G.main.currencyHaveName[0]).node;
                 }
             }
         }

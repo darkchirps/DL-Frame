@@ -19,16 +19,16 @@ export class main extends cc.Component {
     /**页面加载进度节点*/
     loadingNode: cc.Node = null;
     /**货币栏*/
-    CurrencyNode: cc.Node = null;
+    currencyNode: cc.Node = null;
     /**所需货币栏的页面*/
-    CurrencyHaveName: string[] = [];
+    currencyHaveName: string[] = [];
 
     onLoad() {
         this.rootNode = cc.find(`Canvas/Root`);
         this.rootMaskNode = cc.find(`Canvas/Root/RootMask`);
         this.other = cc.find(`Canvas/Other`);
         this.loadingNode = cc.find(`Canvas/Other/Loading`);
-        this.CurrencyNode = cc.find(`Canvas/Other/CurrencyItem`);
+        this.currencyNode = cc.find(`Canvas/Other/CurrencyItem`);
         this.adaptiveType();
     }
     start() {

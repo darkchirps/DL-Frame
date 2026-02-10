@@ -95,8 +95,13 @@ export class gameItem extends cc.Component {
         }
         let nodeTo: gameItem = null;
         if (this.isMoving) {//移动
-            for (const spr of brightItems) {
-                if (X.isBoxIntersect(this.node, spr.node)) { nodeTo = spr; break; }
+            for (const spr of brightItems) {//先用块中心匹配
+                if (X.isPointInBox(this.node.position, spr.node)) { nodeTo = spr; break; }
+            }
+            if (nodeTo == null) {
+                for (const spr of brightItems) {//再用块面积有接触匹配
+                    if (X.isBoxIntersect(this.node, spr.node)) { nodeTo = spr; break; }
+                }
             }
         }
         if (nodeTo == null) {
@@ -177,7 +182,6 @@ export class gameItem extends cc.Component {
         if (closeBool) return;
         this.breatheTween = X.breatheEffect(this.node);
     }
-    tipTween: cc.Tween = null;
     /**重置节点 用于游戏消除使用*/
     resetNodeBack() {
         this.resetBase();
@@ -201,8 +205,6 @@ export class gameItem extends cc.Component {
         this.node.getComponent(gameItem).destroy();
     }
     resetBase() {
-        this.tipTween?.stop();
-        this.tipTween = null;
         this.breatheTween?.stop();
         this.breatheTween = null;
         this.node.opacity = 255;
