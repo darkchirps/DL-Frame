@@ -167,6 +167,42 @@ class GeneralX {
         const spriteFrame = new cc.SpriteFrame(texture);
         return spriteFrame;
     }
+    /**找到数组中指定key值相同的一组返回
+     * @param arr arr数据
+     * @param key arr中的key
+    */
+    public static findArrayGroup(arr: any[], key: string): [any, any] | [] {
+        // 创建一个映射来存储每个元素的索引
+        const indexMap: Map<string, any> = new Map();
+        for (let i = 0; i < arr.length; i++) {
+            let sign = arr[i][key];
+            if (indexMap.get(sign)) {
+                return [indexMap.get(sign), arr[i]]
+            } else {
+                indexMap.set(sign, arr[i]);
+            }
+        }
+        // 如果没有找到重复的元素，返回 undefined
+        return [];
+    }
+    /**找到map中指定key值相同的一组返回
+     * @param map map数据
+     * @param key map中的key
+    */
+    public static findMapGroup(map: Map<string, any>, key: string): [any, any] | [] {
+        // 创建一个映射来存储每个元素的索引
+        const indexMap: Map<string, any> = new Map();
+        for (let k in map) {
+            let sign = map[k][key];
+            if (indexMap.get(sign)) {
+                return [indexMap.get(sign), map[k]]
+            } else {
+                indexMap.set(sign, map[k]);
+            }
+        }
+        // 如果没有找到重复的元素，返回 undefined
+        return [];
+    }
     /**找到数组相同的一组返回*/
     public static findDuplicateIndices(arr: number[]): [number, number] | [] {
         // 创建一个映射来存储每个元素的索引

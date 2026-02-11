@@ -87,7 +87,9 @@ export class game extends UIScr {
             });
             this.blockMap.forEach((spr) => {
                 if (!spr.signTip) spr.showShadow();
+                if (spr.node.active) spr.breatheTweenFunc(true);
             });
+            this.gamePropMgr.propUsing = false;
             this.scheduleOnce(() => this.checkGameOver(), 0.1)
         });
     }
@@ -145,7 +147,12 @@ export class game extends UIScr {
         }
     }
     /**获取当前存在的和当前可点击的*/
-    getHaveClick(): { haveSprs: gameItem[], shadowSprs: gameItem[] } {
+    getHaveClick(): {
+        /**当前显示的所有块*/
+        haveSprs: gameItem[],
+        /**当前可点击的所有块*/
+        shadowSprs: gameItem[]
+    } {
         let haveSpr: gameItem[] = [];//当前存在的
         let shadowSpr: gameItem[] = [];//可点击的
         this.blockMap.forEach((spr, key) => {
