@@ -1,25 +1,31 @@
 const fs = require("fs");
 const path = require("path");
 
+// 存储已创建的脚本路径，避免重复监听
+const createdScripts = new Set();
+
 /**
  * 创建一个继承UIScr的TS脚本
  * @param {string} selectedFolderPath - 项目的路径
- * @param {string} defaultFileName - 初始的默认脚本名
  */
-function createUIScr(selectedFolderPath, defaultFileName) {
-  // 获取父文件夹名
-  let parentFolderName = path.basename(selectedFolderPath.url); // 获取最后一个文件夹名
-
-  // 初始脚本内容
-  let scriptContent = `// 自动生成的UIScr脚本，请勿手动修改
+function createUIScr(selectedFolderPath) {
+    try {
+        // 处理路径参数，兼容不同格式的输入
+        const folderPath = selectedFolderPath.path || selectedFolderPath;
+        const folderUrl = selectedFolderPath.url || `db://${folderPath.replace(/\\/g, '/')}`;
+        
+        // 获取父文件夹名作为初始脚本名
+        let parentFolderName = path.basename(folderPath);
+        // 初始脚本内容 自动生成的UIScr脚本，请勿手动修改
+        const scriptContent = `
 import UIMgr from '../../../appDL/Manager/UIMgr';
 import UIScr from '../../../appDL/Manager/UIScr';
 import { UIClass } from '../../../appDL/Manager/UIClass';
 const { ccclass, property } = cc._decorator;
 
 @ccclass
-export class ${defaultFileName} extends UIScr {
-    nodesType: tree_${defaultFileName}; 
+export class ${parentFolderName} extends UIScr {
+    nodesType: tree_${parentFolderName}; 
 
     start() {
         this.showUi();
@@ -37,56 +43,30 @@ export class ${defaultFileName} extends UIScr {
 
 // 注册UI管理
 UIMgr.register(new UIClass({
-    ID: "${defaultFileName}",
+    ID: "${parentFolderName}",
     parfabPath: "${parentFolderName}",
 }));`;
 
-  Editor.log(`已创建脚本文件：${selectedFolderPath.path}`, `${defaultFileName}`);
-  // 确定文件路径
-  let scriptFilePath = path.join(selectedFolderPath.path, `${defaultFileName}.ts`);
-  // 写入脚本文件
-  fs.writeFileSync(scriptFilePath, scriptContent);
-  // 刷新
-  Editor.assetdb.refresh(selectedFolderPath.url);
-  // 监听文件名修改
-  Editor.assetdb.on('move', (event) => {
-    Editor.log(`已变更：\n${event}`);
-    if (event.event === 'rename') {
-      // 如果文件名发生变化
-      const { oldPath, newPath } = event;
+        // 确定文件路径
+        const scriptFilePath = path.join(folderPath, `${parentFolderName}.ts`);
+        
+        // 避免重复创建文件
+        if (fs.existsSync(scriptFilePath)) {
+            Editor.log(`文件已存在：${scriptFilePath}`);
+            return;
+        }
 
-      // 如果修改的是我们刚才创建的脚本文件
-      if (oldPath === scriptFilePath) {
-        const newFileName = path.basename(newPath, '.ts'); // 获取新的文件名（去掉.ts后缀）
-        // 更新脚本内容中的 fileName
-        updateScriptFile(newPath, newFileName);
-      }
+        // 写入脚本文件
+        fs.writeFileSync(scriptFilePath, scriptContent, 'utf-8');
+        Editor.log(`已创建脚本文件：${scriptFilePath}`);
+
+        // 刷新资源管理器
+        Editor.assetdb.refresh(folderUrl);
+    } catch (error) {
+        Editor.error(`创建UI脚本失败：${error.message}`);
+        console.error(error);
     }
-  });
 }
-
-/**
- * 更新脚本文件中的 fileName 字段
- * @param {string} scriptFilePath - 脚本文件路径
- * @param {string} newFileName - 新的脚本文件名
- */
-function updateScriptFile(scriptFilePath, newFileName) {
-  // 读取脚本文件内容
-  let scriptContent = fs.readFileSync(scriptFilePath, 'utf-8');
-
-  // 替换脚本中的 fileName
-  scriptContent = scriptContent.replace(/export default class \w+/g, `export default class ${newFileName}`);
-
-  // 更新类名和相关的 fileName
-  scriptContent = scriptContent.replace(new RegExp(`${path.basename(scriptFilePath, '.ts')}`, 'g'), newFileName);
-
-  // 写回更新后的内容
-  fs.writeFileSync(scriptFilePath, scriptContent);
-
-  // 刷新资源管理器，确保内容更新
-  Editor.assetdb.refresh(scriptFilePath);
-
-  Editor.log(`脚本文件名已更新为：${newFileName}`);
-}
-
+// 导出函数
 exports.createUIScr = createUIScr;
+

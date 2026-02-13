@@ -63,9 +63,11 @@ class CustomMenu extends Editor.__Menu__ {
       let assetInfo = getSelectedFirstAssetInfo();
       template.push({ type: "separator" });
       template.push({
-        label: '新建UIScr', click: (n) => {
+        label: '★ 新建UIScr ★',
+        enabled: true,
+        click: (n) => {
           const c = require("./createUIScr");
-          c.createUIScr(assetInfo,"tsName");
+          c.createUIScr(assetInfo);
         }
       });
     }
