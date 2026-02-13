@@ -80,19 +80,6 @@ export class UIClass {
             }
         }
     }
-    removePopup(done: Function) {
-        const n = this.node;
-        if (!this.uiConfig.animBool || !n) {
-            done();
-            return;
-        }
-        cc.tween(n)
-            .to(0.05, { scale: 1.1 })
-            .to(0.05, { scale: 1 })
-            .to(0.1, { scale: 0.1 })
-            .call(done)
-            .start();
-    }
     /** 注册一次监听 */
     once(eventType: string, callback = null) {
         this.event.once(eventType, callback);
@@ -151,6 +138,7 @@ export class UIClass {
         w.isAlignTop = w.isAlignBottom = w.isAlignLeft = w.isAlignRight = true;
         w.top = w.bottom = w.left = w.right = 0;
     }
+    /**窗口打开效果*/
     playOpenAnim(n: cc.Node) {
         if (!this.uiConfig.animBool) return;
         n.scale = 0.3;
@@ -162,6 +150,17 @@ export class UIClass {
                 const w = n.getComponentsInChildren(cc.Widget);
                 for (const wid of w) wid.updateAlignment();
             })
+            .start();
+    }
+    /**窗口关闭效果*/
+    removePopup(done: Function) {
+        const n = this.node;
+        if (!this.uiConfig.animBool || !n) return done();
+        cc.tween(n)
+            .to(0.05, { scale: 1.1 })
+            .to(0.05, { scale: 1 })
+            .to(0.1, { scale: 0.1 })
+            .call(done)
             .start();
     }
 }

@@ -18,6 +18,7 @@ export default class UIScr extends cc.Component {
 
     /** 界面显示 */
     onShow(): void {
+        
     }
     /** 移除UI */
     remove(): void {

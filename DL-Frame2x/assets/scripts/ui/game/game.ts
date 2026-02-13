@@ -118,9 +118,9 @@ export class game extends UIScr {
         const centerPos2 = cc.v3((endPos2.x + startPos2.x) / 2, (endPos2.y + startPos2.y) / 2);
 
         const endPosTo = cc.v3((startPos1.x + startPos2.x) / 2, centerY);
-        X.bezierTween(item1.node, 0.12, startPos1, centerPos1, endPos1)
+        G.effectMgr.bezierTween(item1.node, 0.12, startPos1, centerPos1, endPos1)
             .start();
-        X.bezierTween(item2.node, 0.12, startPos2, centerPos2, endPos2)
+        G.effectMgr.bezierTween(item2.node, 0.12, startPos2, centerPos2, endPos2)
             .call(() => callback && callback(endPosTo))
             .start();
     }
@@ -132,7 +132,7 @@ export class game extends UIScr {
             this.scheduleOnce(() => UIMgr.ui.home.show(), 1);
         } else {
             let blockIds = arr.shadowSprs.map(v => v.blockId);
-            let matchs = X.countElementPairsTo(blockIds);
+            let matchs = G.arrayMgr.countElementPairsTo(blockIds);
             if (matchs.totalPairs == 0) { //无可匹配的
                 if (arr.shadowSprs.length == 1) {//如果只有一个可点击的 自动消除匹配
                     let matchSpr: gameItem = null;
@@ -185,7 +185,7 @@ export class game extends UIScr {
     /**创建麻将id规则*/
     makeMahjongIdRule() {
         let rand = this.randowIconKind(this.mapData[0].length / 2);
-        let arr = X.randomRange(1, myG.spriteArr.size, rand);
+        let arr = G.randomMgr.randomRange(1, myG.spriteArr.size, rand);
         const totalNeeded = this.mapData[0].length / 2;
         if (rand < totalNeeded) {
             const needed = totalNeeded - rand;
@@ -195,7 +195,7 @@ export class game extends UIScr {
                 arr.push(...arr.slice(0, arr.length));
             }
             if (remainder > 0) {// 添加余数部分
-                const randomIndices = X.randomRange(0, arr.length - 1, remainder);
+                const randomIndices = G.randomMgr.randomRange(0, arr.length - 1, remainder);
                 arr.push(...randomIndices.map(i => arr[i]));
             }
         }
@@ -222,7 +222,7 @@ export class game extends UIScr {
     /**返回当前配置所需种类个数*/
     randowIconKind(len: number): number {
         if (len >= myG.spriteArr.size) return myG.spriteArr.size;
-        return X.randomInt(Math.trunc(len / 4) * 3, len);
+        return G.randomMgr.randomInt(Math.trunc(len / 4) * 3, len);
     }
     /** 进场动效 */
     startEffect() {

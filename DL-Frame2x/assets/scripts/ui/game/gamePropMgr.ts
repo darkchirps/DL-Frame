@@ -19,7 +19,7 @@ export class gamePropMgr {
             let infoArr = this.game.getHaveClick();
             let clickSprs = infoArr.shadowSprs;
             if (clickSprs.length == 1) return;
-            let matchs = X.findArrayGroup(clickSprs, "blockId");
+            let matchs = G.arrayMgr.findArrayGroup(clickSprs, "blockId");
             if (matchs.length < 2) return;
             this.propUsing = true;
             matchs.forEach((spr: gameItem) => spr.breatheTweenFunc())

@@ -13,7 +13,7 @@
   },
   {
     "__type__": "cc.Node",
-    "_name": "circle",
+    "_name": "gradient",
     "_objFlags": 0,
     "_parent": null,
     "_children": [],
@@ -39,8 +39,8 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 40,
-      "height": 40
+      "width": 133.48,
+      "height": 50.4
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -77,7 +77,7 @@
     "_id": ""
   },
   {
-    "__type__": "cc.Sprite",
+    "__type__": "cc.Label",
     "_name": "",
     "_objFlags": 0,
     "node": {
@@ -86,30 +86,31 @@
     "_enabled": true,
     "_materials": [
       {
-        "__uuid__": "00740460-c8db-4757-8010-81b9c1a7d4f8"
+        "__uuid__": "7c93fe9a-a32b-48fe-9396-bda6ac073dfb"
       }
     ],
     "_srcBlendFactor": 770,
     "_dstBlendFactor": 771,
-    "_spriteFrame": {
-      "__uuid__": "f0048c10-f03e-4c97-b9d3-3506e1d58952"
-    },
-    "_type": 0,
-    "_sizeMode": 1,
-    "_fillType": 0,
-    "_fillCenter": {
-      "__type__": "cc.Vec2",
-      "x": 0,
-      "y": 0
-    },
-    "_fillStart": 0,
-    "_fillRange": 0,
-    "_isTrimmedMode": true,
-    "_atlas": null,
+    "_string": "123456",
+    "_N$string": "123456",
+    "_fontSize": 40,
+    "_lineHeight": 40,
+    "_enableWrapText": true,
+    "_N$file": null,
+    "_isSystemFontUsed": true,
+    "_spacingX": 0,
+    "_batchAsBitmap": false,
+    "_styleFlags": 0,
+    "_underlineHeight": 0,
+    "_N$horizontalAlign": 0,
+    "_N$verticalAlign": 0,
+    "_N$fontFamily": "Arial",
+    "_N$overflow": 0,
+    "_N$cacheMode": 0,
     "_id": ""
   },
   {
-    "__type__": "d4fc5+4aGtNjp8CJ0VTfXIw",
+    "__type__": "042fazobNBC5pfqXsu0ZKjA",
     "_name": "",
     "_objFlags": 0,
     "node": {
@@ -117,8 +118,23 @@
     },
     "_enabled": true,
     "material": {
-      "__uuid__": "00740460-c8db-4757-8010-81b9c1a7d4f8"
+      "__uuid__": "7c93fe9a-a32b-48fe-9396-bda6ac073dfb"
     },
+    "color1": {
+      "__type__": "cc.Color",
+      "r": 255,
+      "g": 18,
+      "b": 18,
+      "a": 255
+    },
+    "color2": {
+      "__type__": "cc.Color",
+      "r": 255,
+      "g": 255,
+      "b": 0,
+      "a": 255
+    },
+    "direction": 1,
     "_id": ""
   },
   {

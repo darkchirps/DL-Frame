@@ -180,7 +180,7 @@ export class gameItem extends cc.Component {
             this.node.scale = 1;
         }
         if (closeBool) return;
-        this.breatheTween = X.breatheEffect(this.node);
+        this.breatheTween = G.effectMgr.breatheEffect(this.node);
     }
     /**重置节点 用于游戏消除使用*/
     resetNodeBack() {

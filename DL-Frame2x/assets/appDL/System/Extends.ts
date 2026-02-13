@@ -6,7 +6,6 @@ import labelChange from "../Component/labelChange";
 import listSpfs from "../Component/listSpfs";
 import richTextPlus from "../Component/richTextPlus";
 import roundBox from "../Component/roundBox";
-import CCMVideo from "../Component/VideoUi/CCMVideo";
 import pageRoll from "../Component/pageRoll";
 import switcher from "../Component/switcher";
 import customPolygon from "../Component/customPolygon";
