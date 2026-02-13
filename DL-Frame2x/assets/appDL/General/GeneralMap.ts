@@ -1,7 +1,7 @@
 /*******************************************************************************
  * 描述:    框架全局方法管理器 map相关
 *******************************************************************************/
-class GeneralMap {
+export default class GeneralMap {
 
     /**找到map中指定key值相同的一组返回
      * @param map map数据
@@ -22,6 +22,3 @@ class GeneralMap {
         return [];
     }
 }
-export default class GM extends GeneralMap { }
-declare global { var GM: typeof GeneralMap }
-globalThis["GM"] = GM;
