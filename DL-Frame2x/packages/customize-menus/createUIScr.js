@@ -23,9 +23,10 @@ import UIScr from '../../../appDL/Manager/UIScr';
 import { UIClass } from '../../../appDL/Manager/UIClass';
 const { ccclass, property } = cc._decorator;
 
+//脚本同预制体名
 @ccclass
 export class ${parentFolderName} extends UIScr {
-    nodesType: tree_${parentFolderName}; 
+    nodesType: tree_${parentFolderName}; //对应 tree_预制体名
 
     start() {
         this.showUi();
@@ -43,8 +44,8 @@ export class ${parentFolderName} extends UIScr {
 
 // 注册UI管理
 UIMgr.register(new UIClass({
-    ID: "${parentFolderName}",
-    parfabPath: "${parentFolderName}",
+    ID: "${parentFolderName}",//唯一id 对应预制体名
+    parfabPath: "${parentFolderName}",//预制体所处父文件夹名
 }));`;
 
         // 确定文件路径

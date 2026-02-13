@@ -1,12 +1,13 @@
-// 自动生成的UIScr脚本，请勿手动修改
+
 import UIMgr from '../../../appDL/Manager/UIMgr';
 import UIScr from '../../../appDL/Manager/UIScr';
 import { UIClass } from '../../../appDL/Manager/UIClass';
 const { ccclass, property } = cc._decorator;
 
+//脚本同预制体名
 @ccclass
 export class test extends UIScr {
-    nodesType: tree_test; 
+    nodesType: tree_test; //对应 tree_预制体名
 
     start() {
         this.showUi();
@@ -24,6 +25,6 @@ export class test extends UIScr {
 
 // 注册UI管理
 UIMgr.register(new UIClass({
-    ID: "test",
-    parfabPath: "test",
+    ID: "test",//唯一id 对应预制体名
+    parfabPath: "test",//预制体所处父文件夹名
 }));
