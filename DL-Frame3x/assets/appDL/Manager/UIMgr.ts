@@ -6,7 +6,7 @@ import { UIClassDict } from "../../../type_spr";
 import { UIClass, UIStatus } from "./UIClass";
 
 export default class UIMgr {
-    //ui集合
+    /**ui集合*/
     public static ui: Partial<UIClassDict> & k_v<UIClass> = {};
     /**
      * 注册窗体

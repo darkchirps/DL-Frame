@@ -111,7 +111,7 @@ export class UIClass {
         this.status = UIStatus.OPENING;
         G.main.loadingNode.active = true;
         let prePath = this.uiConfig.parfabPath + '/' + this.uiConfig.ID;
-        const prefab = await G.asset.getPrefab(bundleType.ui, prePath, this.uiConfig.ID);
+        const prefab = await G.asset.getPrefab(this.uiConfig.bundleName, prePath, this.uiConfig.ID);
         //@ts-ignore
         if (!prefab || this.status === UIStatus.REMOVING || this.status === UIStatus.REMOVED) return console.log("UI实例化失败");
         // 实例化节点
@@ -160,7 +160,9 @@ export type UIConfig = {
     /**prefab名*/
     ID: string;
     /**预制所处文件夹名*/
-    parfabPath?: string;
+    parfabPath: string;
+    /**bundle文件夹名*/
+    bundleName: string;
     /**全屏*/
     fullScreen?: boolean;
     /**页面打开关闭动画*/
@@ -187,6 +189,7 @@ export enum UIStatus {
 
 /**bundle类型*/
 export enum bundleType {
-    ui = "ui",//储存预制体及其对应资源bundle文件夹
-    resources = "resources",
+    选择bundle若无则添加 = "",
+    appUi = "appUi",
+    mahUi = "mahUi"
 }

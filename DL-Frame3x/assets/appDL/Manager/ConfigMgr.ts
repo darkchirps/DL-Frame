@@ -2,7 +2,6 @@
  * 描述:    配置管理 初始加载所有配置
 *******************************************************************************/
 import { BufferAsset, JsonAsset, _decorator } from "cc";
-import { ResourceType } from "../System/BinaryResourceLoader";
 
 class _ConfigMgr {
     private static _bin = {};
@@ -17,7 +16,8 @@ class _ConfigMgr {
                     const buffer = bin.buffer();
                     if (buffer) {
                         // 解析二进制数据
-                        const configData = Bin.parseBinaryResource(buffer, ResourceType.CONFIG);
+                        const jsonString = new TextDecoder('utf-8').decode(new Uint8Array(buffer));
+                        const configData = JSON.parse(jsonString);
                         const fileName = bin.name.replace('.bin', '');
                         this._bin[fileName] = configData;
                         console.log(`加载二进制配置成功: ${bin.name}`);

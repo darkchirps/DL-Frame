@@ -1,9 +1,14 @@
 {
-    "sprName": "assets/scripts/ui",
-    "preName": "assets/ui",
+    "sprName": [
+        "assets/appScr",
+        "assets/mahScr/ui"
+    ],
+    "preName": [
+        "assets/appUi",
+        "assets/mahUi"
+    ],
     "confName": [
-        "/assets/appRes/config",
-        "/assets/mahjongRes/config"
+        "/assets/appRes/config"
     ],
     "mp3Name": [
         "/assets/appRes/audio"

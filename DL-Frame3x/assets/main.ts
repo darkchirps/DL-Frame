@@ -1,5 +1,6 @@
 import { _decorator, Component, screen, Node, math, sys, view, ResolutionPolicy, AssetManager, find, director } from 'cc';
 import { BUILD } from 'cc/env';
+import UIMgr from './appDL/Manager/UIMgr';
 
 const { ccclass, property } = _decorator;
 @ccclass('main')
@@ -25,7 +26,7 @@ export class main extends Component {
 
     start() {
         G.init(this);
-        myG.init();
+        UIMgr.ui.loading.show();
     }
 
     /**适配*/

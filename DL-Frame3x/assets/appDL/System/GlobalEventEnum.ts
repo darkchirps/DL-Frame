@@ -23,5 +23,15 @@ export enum LanguageType {
     Chinese = "zh",
     /** 英语 */
     English = "en",
+    /** 法语 */
+    French = "fr",
+    /** 德语 */
+    German = "de",
+    /** 日语 */
+    Japan = "ja",
+    /** 俄语 */
+    Russian = "ru",
+    /** 韩语 */
+    Korean = "kr",
 }
 
