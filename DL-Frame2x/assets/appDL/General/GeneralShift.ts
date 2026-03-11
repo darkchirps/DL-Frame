@@ -13,6 +13,16 @@ export default class GeneralShift {
         let spriteFarme = new cc.SpriteFrame();
         spriteFarme.setTexture(texture);
         return spriteFarme;
+
+        let b64str = "data:image/png;base64," + base64Data;
+        cc.assetManager.loadRemote(b64str, { ext: '.png' }, (err, texture: cc.Texture2D) => {
+            if (err) {
+                cc.error("image b64", err);
+                return;
+            }
+            let sf = new cc.SpriteFrame(texture);
+            // do something with the sprite frame
+        });
     }
     /**
      * 将二进制中ArrayBuffer转换为图片并显示到Sprite

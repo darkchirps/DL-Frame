@@ -22,6 +22,10 @@ export class gamePropMgr {
             let matchs = G.arrayMgr.findArrayGroup(clickSprs, "blockId");
             if (matchs.length < 2) return;
             this.propUsing = true;
+            this.game.blockMap.forEach((spr) => {
+                if (spr.node.active) spr.breatheTweenFunc(true);
+            });
+            this.game.clearBlockItems = [];
             matchs.forEach((spr: gameItem) => spr.breatheTweenFunc())
         })
         this.game.nodes.propRefreshBtn.click(() => {

@@ -191,5 +191,6 @@ export enum UIStatus {
 export enum bundleType {
     选择bundle若无则添加 = "",
     appUi = "appUi",
-    mahUi = "mahUi"
+    mahUi = "mahUi",
+    mahRes = "mahRes"
 }

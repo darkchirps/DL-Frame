@@ -1,5 +1,9 @@
 import { Node } from 'cc';
 declare global {
+   type tree_tip = {
+      "tip": cc.Node,
+      "tipLab": cc.Node,
+   }
    type tree_game = {
       "game": cc.Node,
       "mapNode": cc.Node,
@@ -36,6 +40,12 @@ declare global {
    }
    type tree_test = {
       "testUi": cc.Node,
-      "pic": cc.Node,
+      "pageView": cc.Node,
+      "view": cc.Node,
+      "content": cc.Node,
+      "page_1": cc.Node,
+      "page_2": cc.Node,
+      "page_3": cc.Node,
+      "loopPageView": cc.Node,
    }
 }

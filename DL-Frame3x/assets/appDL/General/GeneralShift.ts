@@ -1,3 +1,4 @@
+import { assetManager } from "cc";
 import { Sprite, SpriteFrame, Texture2D, ImageAsset, sys } from "cc";
 
 /*******************************************************************************
@@ -6,6 +7,17 @@ import { Sprite, SpriteFrame, Texture2D, ImageAsset, sys } from "cc";
 export default class GeneralShift {
     /**base64转spriteFrame*/
     public Base64SpriteFrame(base64Data: string, sprite?: Sprite) {
+        // assetManager.loadRemote(base64Data, { ext: '.png' }, (err, imgAsset: ImageAsset) => {
+        //     if (err) {
+        //         return;
+        //     }
+
+        //     let texture = new Texture2D();
+        //     texture.image = imgAsset;
+        //     let sf = new SpriteFrame();
+        //     sf.texture = texture;
+        //     // do something with the sprite frame
+        // });
         return new Promise<SpriteFrame>((resolve, reject) => {
             try {
                 const iconData = base64Data.startsWith('data:') ? base64Data : `data:image/jpg;base64,${base64Data}`;

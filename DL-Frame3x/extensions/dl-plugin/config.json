@@ -1,11 +1,9 @@
 {
     "sprName": [
-        "assets/appScr",
-        "assets/mahScr/ui"
+        "assets/appScr"
     ],
     "preName": [
-        "assets/appUi",
-        "assets/mahUi"
+        "assets/appUi"
     ],
     "confName": [
         "/assets/appRes/config"
