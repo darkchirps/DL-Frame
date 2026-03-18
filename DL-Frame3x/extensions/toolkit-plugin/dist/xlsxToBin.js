@@ -99,10 +99,10 @@ function xlsxToBinary(excelPath, outputDir) {
                 }
                 if (valueStr.includes(',')) {
                     return [valueStr.split(',').map(v => {
-                            const trimmed = v.trim();
-                            const numVal = parseFloat(trimmed);
-                            return isNaN(numVal) ? trimmed : numVal;
-                        })];
+                        const trimmed = v.trim();
+                        const numVal = parseFloat(trimmed);
+                        return isNaN(numVal) ? trimmed : numVal;
+                    })];
                 }
                 return [[value]];
             }
@@ -111,8 +111,20 @@ function xlsxToBinary(excelPath, outputDir) {
                 valueStr.split(',').forEach(pair => {
                     const [key, val] = pair.split(':').map(s => s.trim());
                     if (key && val !== undefined) {
-                        const numVal = parseFloat(val);
-                        result[key] = isNaN(numVal) ? val : numVal;
+                        let processedVal;
+                        if (val.includes('|')) {
+                            const separator = val.includes('|') ? '|' : ',';
+                            processedVal = val.split(separator).map(item => {
+                                const valtrimmed = item.trim();
+                                const valnumVal = parseFloat(valtrimmed);
+                                return isNaN(valnumVal) ? valtrimmed : valnumVal;
+                            });
+                        } else {
+                            // 原有逻辑：普通值处理（数字转数字类型，否则保留字符串）
+                            const numVal = parseFloat(val);
+                            processedVal = isNaN(numVal) ? val : numVal;
+                        }
+                        result[key] = processedVal;
                     }
                 });
                 return result;
@@ -147,7 +159,21 @@ function xlsxToBinary(excelPath, outputDir) {
         // @ts-ignore
         workbook.SheetNames.forEach(sheetName => {
             const worksheet = workbook.Sheets[sheetName];
-            const rows = xlsx.utils.sheet_to_json(worksheet, { header: 1 });
+            // const rows = xlsx.utils.sheet_to_json(worksheet, { header: 1 });
+            const rows = [];
+            // 遍历所有单元格，读取显示值
+            const range = xlsx.utils.decode_range(worksheet['!ref'] || 'A1');
+            for (let r = range.s.r; r <= range.e.r; r++) {
+                const row = [];
+                for (let c = range.s.c; c <= range.e.c; c++) {
+                    const cellAddress = xlsx.utils.encode_cell({ r, c });
+                    const cell = worksheet[cellAddress];
+                    // 关键：cell.v 是存储值（0.8），cell.w 是显示值（80%）
+                    const cellValue = cell ? (cell.w ?? cell.v) : '';
+                    row.push(cellValue);
+                }
+                rows.push(row);
+            }
             if (!rows || rows.length === 0) {
                 console.warn(`工作表 ${sheetName} 没有数据，跳过处理`);
                 return;
@@ -172,7 +198,7 @@ function xlsxToBinary(excelPath, outputDir) {
                     const obj = {};
                     if (row[0] !== undefined) {
                         for (let j = 0; j < keys.length; j++) {
-                            obj[keys[j]] = convertValue(types[j], row[j]);
+                            if (keys[j]) obj[keys[j]] = convertValue(types[j], row[j]);
                         }
                         jsonData.push(obj);
                     }
@@ -256,7 +282,9 @@ function generateTypeDefinition(list) {
             if (field.comment) {
                 lines.push(`    /** ${field.comment} */`);
             }
-            lines.push(`    ${field.key}?: ${field.tsType};`);
+            if (field.key) {
+                lines.push(`    ${field.key}?: ${field.tsType};`);
+            }
         });
         lines.push("}\n");
     });
