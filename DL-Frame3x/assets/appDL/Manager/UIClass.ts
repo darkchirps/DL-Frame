@@ -49,7 +49,8 @@ export class UIClass {
     }
     /** 关闭界面 */
     remove() {
-        if (this.status !== UIStatus.OPENED) return;
+        // 改进: OPENING 状态也允许标记为 REMOVING，_instantiate 会检查并中止
+        if ([UIStatus.REMOVING, UIStatus.REMOVED].includes(this.status)) return;
         this.status = UIStatus.REMOVING;
         const n = this.node;
         const finish = () => {
@@ -123,16 +124,17 @@ export class UIClass {
         n.setPosition(0, 0);
 
         this.ensureFullWidget(n);
-        this.playOpenAnim(n);
 
-        // 挂载主逻辑
+        // 挂载主逻辑（先挂载，动画结束后再调 onShow，确保 Widget 布局完成）
         this.uiScr = (this.node.getComponent(this.uiConfig.ID) || this.node.addComponent(this.uiConfig.ID)) as UIScr;
         this.uiScr.uiClass = this;
-        this.uiScr.onShow();
-        // 生命周期管理
         this.node.addComponent(BlockInputEvents);
         this.status = UIStatus.OPENED;
         G.main.loadingNode.active = false;
+
+        this.playOpenAnim(n, () => {
+            this.uiScr.onShow();
+        });
     }
     ensureFullWidget(n: Node) {
         if (n.getComponent(Widget)) return;
@@ -140,8 +142,11 @@ export class UIClass {
         w.isAlignTop = w.isAlignBottom = w.isAlignLeft = w.isAlignRight = true;
         w.top = w.bottom = w.left = w.right = 0;
     }
-    playOpenAnim(n: Node) {
-        if (!this.uiConfig.animBool) return;
+    playOpenAnim(n: Node, onDone?: () => void) {
+        if (!this.uiConfig.animBool) {
+            onDone?.();
+            return;
+        }
         n.scaleXY = 0.3;
         tween(n)
             .to(0.1, { scaleXY: 1 })
@@ -150,6 +155,7 @@ export class UIClass {
             .call(() => {
                 const w = n.getComponentsInChildren(Widget);
                 for (const wid of w) wid.updateAlignment();
+                onDone?.();
             })
             .start();
     }

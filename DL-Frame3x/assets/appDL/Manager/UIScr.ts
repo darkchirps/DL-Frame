@@ -1,4 +1,4 @@
-import { Asset, AudioClip, TextAsset, Component, error, Node, Prefab, sp, SpriteFrame, Texture2D, _decorator, isValid, JsonAsset } from "cc";
+import { Asset, TextAsset, Component, Node, Prefab, SpriteFrame, Texture2D, _decorator, isValid, JsonAsset } from "cc";
 import { UIClass } from "./UIClass";
 import { k_v } from "../../../type_cetend_cc";
 
@@ -31,7 +31,8 @@ export default class UIScr extends Component {
         return new Promise((resolve, reject) => {
             G.asset.getAsset(bundleName, path, this.uiClass.uiConfig.ID, type).then((v) => {
                 if (isValid(this.node, true)) resolve(v);
-            });
+                else reject(new Error(`UIScr node destroyed before asset loaded: ${path}`));
+            }).catch(reject);
         });
     }
 

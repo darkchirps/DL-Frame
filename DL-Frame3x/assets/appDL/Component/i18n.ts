@@ -1,8 +1,7 @@
 /*******************************************************************************
  * 描述:    文本节点挂载 多语言 填写多语言id
 *******************************************************************************/
-import { Label, _decorator, Component, CCInteger, Enum } from "cc";
-import { Gvent } from "../System/GlobalEventEnum";
+import { Label, _decorator, Component, CCInteger } from "cc";
 
 const { ccclass, property, menu, requireComponent } = _decorator;
 
@@ -17,12 +16,9 @@ export default class I18n extends Component {
 
     onLoad() {
         this.label = this.getComponent(Label);
-        if (this.textId > 0) {
-            this.setStr();
-        } else {
-            console.warn("i18n: textId not selected");
-        }
-        G.event.on(Gvent.changeLanguage, this.setStr, this);
+        if (this.textId <= 0) console.warn("i18n: textId not selected");
+        // watch 注册时会立即触发一次 setStr，无需手动调用
+        C.watch("languageId", this.setStr, this.node);
     }
 
     /**重新设置节点多语言*/
@@ -36,7 +32,7 @@ export default class I18n extends Component {
     }
 
     setStr() {
-        let textStr = X.getI18n(this.textId);
+        let textStr = G.i18nMgr.getI18n(this.textId);
         if (textStr) {
             this.node.label.string = textStr;
         } else {
@@ -45,7 +41,7 @@ export default class I18n extends Component {
     }
 
     onDestroy() {
-        G.event.off(Gvent.changeLanguage, this.setStr, this);
+        C.unwatch("languageId", this.setStr);
         this.label = null;
     }
 }

@@ -1,123 +1,187 @@
 /*******************************************************************************
  * 描述:    框架缓存管理
+ *
+ * 支持监听数据变化，依赖某个 key 的逻辑只需注册一次：
+ *
+ *   // 监听单个 key（注册时立即触发一次当前值）
+ *   C.watch("gold", (newVal, oldVal) => { ... }, this.node);
+ *
+ *   // 监听多个 key（对象写法）
+ *   C.watch({ gold: (val) => { ... }, level: (val) => { ... } }, this.node);
+ *
+ *   // 手动解绑
+ *   C.unwatch("gold", callback);
+ *
+ * 注意：
+ *   - init() 应在 watch() 之前调用，确保首次触发时默认值已写入
+ *   - languageId 变化统一通过 watch("languageId") 监听，不再 emit 全局事件
 *******************************************************************************/
 
-import { sys } from "cc";
+import { Node, sys } from "cc";
 import { Gvent, LanguageType } from "../System/GlobalEventEnum";
-/**通用存储key */
+
+/** 通用存储key */
 export enum cKey {
     musicSwitch = "musicSwitch",
     soundSwitch = "soundSwitch",
     shakeSwitch = "shakeSwitch",
-    languageId = "languageId",
+    languageId  = "languageId",
 }
 
 class CacheMgr {
 
-    static get musicSwitch() {
-        return this.get(cKey.musicSwitch);
-    }
+    static get musicSwitch() { return this.get(cKey.musicSwitch); }
     static set musicSwitch(v: boolean) {
         if (v === null) v = true;
         this.set(cKey.musicSwitch, v);
     }
-    static get soundSwitch() {
-        return this.get(cKey.soundSwitch);
-    }
+    static get soundSwitch() { return this.get(cKey.soundSwitch); }
     static set soundSwitch(v: boolean) {
         if (v === null) v = true;
         this.set(cKey.soundSwitch, v);
     }
-    static get shakeSwitch() {
-        return this.get(cKey.shakeSwitch);
-    }
+    static get shakeSwitch() { return this.get(cKey.shakeSwitch); }
     static set shakeSwitch(v: boolean) {
         if (v === null) v = true;
         this.set(cKey.shakeSwitch, v);
     }
-    static get languageId() {
-        return this.get(cKey.languageId);
-    }
+    static get languageId() { return this.get(cKey.languageId); }
     static set languageId(v: LanguageType | string) {
         if (v === null) v = LanguageType.Chinese;
+        // 改进1: 不再重复 emit 全局事件，统一走 watch("languageId") 监听
         this.set(cKey.languageId, v);
-        G.event.emit(Gvent.changeLanguage);
     }
 
+    // 改进4: init 写入默认值时静默，不触发 watch 回调（此时 watch 尚未注册）
     static init() {
         for (let i in cKey) {
-            if (this[i] === null) this[i] = null;
+            if (this[i] === null) this[i] = null; // 触发 setter 写入默认值，静默模式
         }
     }
 
+    // ── 监听表 ──────────────────────────────────────────────
+    private static _watchers: Map<string, WatchEntry[]> = new Map();
+
+    // 改进3: 重载签名，对象写法不再需要显式传 undefined
+    static watch(key: Record<string, WatchCallback>, node?: Node): void;
+    static watch(key: string, cb: WatchCallback, node?: Node): void;
+    static watch(key: string | Record<string, WatchCallback>, cbOrNode?: WatchCallback | Node, node?: Node) {
+        if (typeof key === 'object') {
+            const _node = cbOrNode instanceof Node ? cbOrNode : node;
+            for (const k in key) {
+                this._addWatcher(k, key[k], _node);
+            }
+        } else {
+            this._addWatcher(key, cbOrNode as WatchCallback, node);
+        }
+    }
+
+    /** 解绑监听 */
+    static unwatch(key: string, cb: WatchCallback) {
+        const list = this._watchers.get(key);
+        if (!list) return;
+        this._watchers.set(key, list.filter(e => e.cb !== cb));
+    }
+
+    private static _addWatcher(key: string, cb: WatchCallback, node?: Node) {
+        if (!this._watchers.has(key)) this._watchers.set(key, []);
+        this._watchers.get(key).push({ cb, node });
+
+        if (node) {
+            node.once(Node.EventType.NODE_DESTROYED, () => {
+                this.unwatch(key, cb);
+            });
+        }
+
+        // 首次立即触发一次，用当前存储值初始化
+        const curVal = this.get(key);
+        cb(curVal, curVal);
+    }
+
+    private static _notify(key: string, newVal: any, oldVal: any) {
+        const list = this._watchers.get(key);
+        if (!list || list.length === 0) return;
+        const alive = list.filter(e => !e.node || e.node.isValid);
+        this._watchers.set(key, alive);
+        alive.forEach(e => e.cb(newVal, oldVal));
+    }
+
+    // ── 存储 ────────────────────────────────────────────────
     static data: Record<string, string> = {};
+
     static get(key: cKey | any, state?: number | string) {
         const _key = `${this.signKey}_${key}`;
         const storedData = sys.localStorage.getItem(_key);
         if (storedData === null) return null;
         const data = JSON.parse(storedData);
-        // 如果没有state参数，返回完整数据
         if (state === null || state === undefined) return data;
-        // 根据初始数据类型处理state
         if (Array.isArray(data)) {
-            // 数组类型：state必须是数字索引
             return typeof state === 'number' ? data[state] : null;
         } else if (typeof data === 'object' && data !== null) {
-            // 对象类型：state可以是字符串或数字（作为属性名）
             return data[state];
         }
         return null;
     }
+
     static set(key: cKey | any, val: any, state?: number | string) {
         const _key = `${this.signKey}_${key}`;
-        let storedData = sys.localStorage.getItem(_key);
+        const storedData = sys.localStorage.getItem(_key);
         let container = storedData ? JSON.parse(storedData) : null;
 
-        // 如果没有state，直接存储整个值
         if (state === null || state === undefined) {
+            const oldVal = container;
             container = val;
+            this.data[key] = JSON.stringify(container);
+            sys.localStorage.setItem(_key, JSON.stringify(container));
+            this._notify(key, container, oldVal);
         } else {
-            // 如果容器不存在，根据state类型创建初始容器
             if (container === null) {
-                // 根据state类型决定初始容器类型
                 container = typeof state === 'number' ? [] : {};
             }
-            // 检查容器类型是否匹配
-            const isArray = Array.isArray(container);
+            const isArray  = Array.isArray(container);
             const isObject = typeof container === 'object' && container !== null;
 
             if (isArray && typeof state === 'number') {
-                // 数组类型 + 数字索引：直接设置值
+                // 改进2: oldVal 取子字段旧值，而非整个 container
+                const oldSubVal = container[state];
                 container[state] = val;
+                this.data[key] = JSON.stringify(container);
+                sys.localStorage.setItem(_key, JSON.stringify(container));
+                this._notify(key, val, oldSubVal);
             } else if (isObject && (typeof state === 'string' || typeof state === 'number')) {
-                // 对象类型 + 字符串/数字键名：设置属性值
+                // 改进2: oldVal 取子字段旧值
+                const oldSubVal = container[state];
                 container[state] = val;
+                this.data[key] = JSON.stringify(container);
+                sys.localStorage.setItem(_key, JSON.stringify(container));
+                this._notify(key, val, oldSubVal);
             } else {
-                // 类型不匹配时不处理state
-                console.error(`Storage type mismatch! 
-                Container is ${isArray ? 'array' : isObject ? 'object' : typeof container}, 
-                state is ${typeof state}`);
+                console.error(`Storage type mismatch! Container is ${isArray ? 'array' : isObject ? 'object' : typeof container}, state is ${typeof state}`);
             }
         }
-        // 保存更新后的数据
-        const finalData = container;
-        this.data[key] = JSON.stringify(finalData);
-        sys.localStorage.setItem(_key, JSON.stringify(finalData));
     }
+
     static clearAll() {
-        // 仅清除本项目命名空间下的缓存，避免误删其它模块数据
         const prefix = `${this.signKey}_`;
         const toRemove: string[] = [];
         for (let i = 0; i < sys.localStorage.length; i++) {
-            const key = sys.localStorage.key(i);
-            if (key && key.indexOf(prefix) === 0) toRemove.push(key);
+            const k = sys.localStorage.key(i);
+            if (k && k.indexOf(prefix) === 0) toRemove.push(k);
         }
         for (const k of toRemove) sys.localStorage.removeItem(k);
     }
+
     static signKey: string = "main";
 }
+
+type WatchCallback = (newVal: any, oldVal: any) => void;
+
+interface WatchEntry {
+    cb: WatchCallback;
+    node?: Node;
+}
+
 /** 主项目缓存管理器 */
 export default class C extends CacheMgr { }
 declare global { var C: typeof CacheMgr }
 globalThis["C"] = C;
-

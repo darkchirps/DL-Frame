@@ -8,6 +8,8 @@ import { UIClass, UIStatus } from "./UIClass";
 export default class UIMgr {
     /**ui集合*/
     public static ui: Partial<UIClassDict> & k_v<UIClass> = {};
+    /**层级计数器，每次新窗口打开递增*/
+    private static _zCounter: number = 10;
     /**
      * 注册窗体
      * @param uiClass 窗体uiClass
@@ -35,14 +37,13 @@ export default class UIMgr {
         for (let id in this.ui) {
             let _uiclass = this.ui[id];
             if (!_uiclass.isShow) continue;
-            //UI显示时，如果设置了fullScreen，则可以把其他的fullScreenUI隐藏掉，减少消耗
+            // 改进: 用 active 替代 opacity=0，语义更清晰且符合 3.x 规范
             if (uiClass.uiConfig.fullScreen) {
                 if (_uiclass.uiConfig.ID != uiClass.uiConfig.ID && _uiclass.uiConfig.fullScreen) {
-                    _uiclass.node.opacity = 0;
+                    _uiclass.node.active = false;
                     console.log(`打开了全屏窗口${uiClass.uiConfig.ID}，自动隐藏${_uiclass.uiConfig.ID}`);
                 }
             }
-            //页面打开时，自动关闭相同group的其他界面
             if (uiClass.uiConfig.group) {
                 if (_uiclass.uiConfig.ID != uiClass.uiConfig.ID && _uiclass.uiConfig.group && _uiclass.uiConfig.group == uiClass.uiConfig.group) {
                     _uiclass.remove();
@@ -51,18 +52,24 @@ export default class UIMgr {
         }
     }
 
-    /**设置层级*/
+    /**设置层级 — 改进: 用递增计数器替代遍历找最大值*/
     public static setZIndex(uiClass: UIClass, state: boolean = true) {
-        var maxZindex = 0;
         if (!this.ui[uiClass.uiConfig.ID]?.node?.isValid) return;
-        for (let id in this.ui) {
-            let _uiclass = this.ui[id];
-            if (_uiclass.uiConfig.ID != uiClass.uiConfig.ID && _uiclass.isShow && _uiclass.node.zIndex > maxZindex) {
-                maxZindex = _uiclass.node.zIndex;
+        if (state && uiClass._parentNode == null) {
+            uiClass.node.zIndex = this._zCounter;
+            G.main.rootMaskNode.zIndex = this._zCounter - 1;
+            this._zCounter += 10;
+        } else if (uiClass._parentNode == null) {
+            // 关闭时重新找当前最高层级来放 mask
+            let maxZ = 0;
+            for (let id in this.ui) {
+                const u = this.ui[id];
+                if (u.uiConfig.ID !== uiClass.uiConfig.ID && u.isShow && u.node?.isValid) {
+                    maxZ = Math.max(maxZ, u.node.zIndex);
+                }
             }
+            G.main.rootMaskNode.zIndex = maxZ > 0 ? maxZ - 1 : 0;
         }
-        if (state && uiClass._parentNode == null) uiClass.node.zIndex = maxZindex + 10;
-        if (uiClass._parentNode == null) G.main.rootMaskNode.zIndex = state ? maxZindex + 1 : maxZindex - 9;
     }
 
     /**
@@ -71,7 +78,6 @@ export default class UIMgr {
      */
     public static onUIRemove(uiClass: UIClass) {
         if (uiClass.uiConfig.fullScreen) {
-            //UI被关闭时，如果设置了fullScreen，则找到最顶上的一个fullScreen UI显示出来
             var topFullScreenUI;
             for (let id in this.ui) {
                 let _uiclass = this.ui[id];
@@ -81,7 +87,8 @@ export default class UIMgr {
             }
             if (topFullScreenUI?.isShow) {
                 console.log(`关闭了全屏窗口${uiClass.uiConfig.ID}，自动显示${topFullScreenUI.uiConfig.ID}`);
-                topFullScreenUI.node.opacity = 255;
+                // 改进: 对应 active=false，这里恢复 active=true
+                topFullScreenUI.node.active = true;
             }
         }
         this.setZIndex(uiClass, false);

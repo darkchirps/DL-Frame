@@ -20,7 +20,9 @@ export class home extends UIScr {
     }
     //执行一次的逻辑
     showUi() {
-
+        C.watch("languageId", (newVal, oldVal) => {
+            this.nodes.lan.string = newVal;
+        }, this.node);
     }
     //按钮管理
     btnManager() {
