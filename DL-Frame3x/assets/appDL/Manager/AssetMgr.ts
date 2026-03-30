@@ -1,11 +1,17 @@
 /*******************************************************************************
  * 描述:    资源管理
 *******************************************************************************/
-import { Asset, assetManager, error, log, AssetManager, Texture2D, TextAsset, SpriteFrame, Prefab, AudioClip, JsonAsset, sys } from "cc";
+import { Asset, assetManager, log, AssetManager, Texture2D, TextAsset, SpriteFrame, Prefab, AudioClip, JsonAsset } from "cc";
+
+interface AssetEntry {
+    asset: Asset;
+    lastGetTime: number;
+    tag: Record<string, number>;
+}
 
 export default class AssetMgr {
 
-    public assetsInfo = {};
+    public assetsInfo: Record<string, AssetEntry> = {};
 
     constructor() {
         //定时清理冷资源
@@ -23,10 +29,12 @@ export default class AssetMgr {
     public loadDirRes(bundleName: string, dir: string, callback?: Function): Promise<any> {
         return new Promise((resolve, reject) => {
             assetManager.loadBundle(bundleName, (err, bundle) => {
+                if (err || !bundle) {
+                    console.error("loadDirRes: 加载 Bundle 失败", bundleName, err);
+                    return reject(err);
+                }
                 bundle.loadDir(dir, (finish: number, total: number, item: AssetManager.RequestItem) => {
-                    if (finish >= total) {
-                        callback && callback();
-                    }
+                    if (finish >= total) callback?.();
                 }, (err, asset) => {
                     if (err) {
                         console.error("Bundle预加载异常:", err);
@@ -109,20 +117,20 @@ export default class AssetMgr {
                 path += "/texture";
             }
             let pathID = `${bundleName}_${path}_${assetType.name}`;
-            if (!assetTag) {
-                assetTag = pathID;
-            }
+            if (!assetTag) assetTag = pathID;
+
+            // 确保 entry 存在且 tag 字段已初始化
             if (!this.assetsInfo[pathID]) {
-                this.assetsInfo[pathID] = {};
+                this.assetsInfo[pathID] = { asset: null, lastGetTime: 0, tag: {} };
             }
-            if (this.assetsInfo[pathID]?.asset?.isValid) {
-                let asset = this.assetsInfo[pathID].asset;
-                if (!this.assetsInfo[pathID].tag[assetTag]) {
-                    //如果这个tag没存在过，则增加引用计数
-                    asset.addRef();
+            const entry = this.assetsInfo[pathID];
+
+            if (entry.asset?.isValid) {
+                if (!entry.tag[assetTag]) {
+                    entry.asset.addRef();
                 }
-                this.assetsInfo[pathID].tag[assetTag] = 1;
-                resolve && resolve(asset);
+                entry.tag[assetTag] = 1;
+                resolve(entry.asset);
                 return;
             }
             this.loadBundle(bundleName, (err, bundle) => {
@@ -134,18 +142,18 @@ export default class AssetMgr {
                 bundle.load(path, assetType, (err, asset) => {
                     if (err) {
                         console.warn(" bundle get asset error", path, err);
-                        resolve && resolve(null);
+                        resolve(null);
                         return;
                     }
-                    var tag = {};
+                    const tag: Record<string, number> = {};
                     tag[assetTag] = 1;
                     this.assetsInfo[pathID] = {
-                        asset: asset,
-                        lastGetTime: new Date().getTime(),
-                        tag: tag,
+                        asset,
+                        lastGetTime: Date.now(),
+                        tag,
                     };
                     asset.addRef();
-                    resolve && resolve(asset);
+                    resolve(asset);
                 });
             });
         });
@@ -165,39 +173,29 @@ export default class AssetMgr {
      * @param assetTag 资源标签
      */
     public decRefByTag(assetTag: string) {
-        var asset, lastGetTime;
         log("减少资源计数索引=>", assetTag);
-        for (var path in this.assetsInfo) {
-            asset = this.assetsInfo[path]?.asset;
-            if (asset?.isValid && this.assetsInfo[path]?.tag[assetTag]) {
-                asset.decRef();
-                delete this.assetsInfo[path]?.tag[assetTag];
+        for (const path in this.assetsInfo) {
+            const entry = this.assetsInfo[path];
+            if (entry?.asset?.isValid && entry.tag[assetTag]) {
+                entry.asset.decRef();
+                delete entry.tag[assetTag];
             }
-            //更新最后访问时间，避免decRef后，立刻被_autoRef回收
-            this.assetsInfo[path].lastGetTime = new Date().getTime();
+            entry.lastGetTime = Date.now();
         }
     }
-    //自动释放资源
     public _autoRef() {
-        var now = new Date().getTime();
+        const now = Date.now();
         log("自动释放资源检测", now);
-        var asset, lastGetTime;
-        for (var path in this.assetsInfo) {
-            asset = this.assetsInfo[path].asset;
-            lastGetTime = this.assetsInfo[path].lastGetTime;
-
-            //引用计数为1，则说明只有MyAsset自身持有了，游戏逻辑本身已经不需要，指定时间没访问过的冷资源，则释放掉
-            if (now - lastGetTime > 5 * 60 * 1000) {
-                if (asset == undefined) {
-                    delete this.assetsInfo[path];
-                } else if (!asset.isValid) {
-                    log("释放资源==>", asset);
-                    delete this.assetsInfo[path];
-                } else if (asset.isValid && asset.refCount <= 1) {
+        for (const path in this.assetsInfo) {
+            const entry = this.assetsInfo[path];
+            if (now - entry.lastGetTime <= 5 * 60 * 1000) continue;
+            const asset = entry.asset;
+            if (!asset || !asset.isValid || asset.refCount <= 1) {
+                if (asset?.isValid) {
                     log("释放资源==>", asset);
                     asset.decRef();
-                    delete this.assetsInfo[path];
                 }
+                delete this.assetsInfo[path];
             }
         }
     }

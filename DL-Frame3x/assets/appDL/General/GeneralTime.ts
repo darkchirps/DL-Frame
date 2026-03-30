@@ -10,51 +10,33 @@ export default class GeneralTime {
      * @param fmtStr 时间格式，默认 "y-m-d h:mm:s"
      */
     public timetostr(time: number, fmtStr = "y-m-d h:mm:s") {
-        // 校验输入，确保秒数大于0
-        if (time <= 0) {
-            return "0d 00:00:00"; // 输入不合法时返回默认空时长（保持格式统一）
-        }
+        if (time <= 0) return "0d 00:00:00";
 
         let remaining = time;
-        // 定义各时间单位的秒数换算
-        const YEAR_SEC = 365 * 24 * 60 * 60;
-        const MONTH_SEC = 30 * 24 * 60 * 60; // 简化为每月30天
-        const DAY_SEC = 24 * 60 * 60;
-        const HOUR_SEC = 60 * 60;
-        const MIN_SEC = 60;
+        const YEAR_SEC  = 365 * 24 * 60 * 60;
+        const MONTH_SEC = 30  * 24 * 60 * 60;
+        const DAY_SEC   = 24  * 60 * 60;
+        const HOUR_SEC  = 60  * 60;
+        const MIN_SEC   = 60;
 
-        // 计算各时间单位的数值
-        const y = Math.floor(remaining / YEAR_SEC).toString();
-        remaining = remaining % YEAR_SEC;
-
-        const m = Math.floor(remaining / MONTH_SEC).toString();
-        remaining = remaining % MONTH_SEC;
-
-        // 天数计算后拼接字母"d"
-        const dNum = Math.floor(remaining / DAY_SEC);
-        const d = `${dNum}d`; // 核心调整：天数后加"d"
-        remaining = remaining % DAY_SEC;
-
-        const h = Math.floor(remaining / HOUR_SEC).toString();
-        remaining = remaining % HOUR_SEC;
-
+        const yNum  = Math.floor(remaining / YEAR_SEC);  remaining %= YEAR_SEC;
+        const moNum = Math.floor(remaining / MONTH_SEC); remaining %= MONTH_SEC;
+        const dNum  = Math.floor(remaining / DAY_SEC);   remaining %= DAY_SEC;
+        const hNum  = Math.floor(remaining / HOUR_SEC);  remaining %= HOUR_SEC;
         const mmNum = Math.floor(remaining / MIN_SEC);
-        const sNum = Math.floor(remaining % MIN_SEC);
+        const sNum  = Math.floor(remaining % MIN_SEC);
 
-        // 补零处理：强制转为字符串，确保类型统一为string
-        const padMM: string = mmNum < 10 ? `0${mmNum}` : mmNum.toString();
-        const padS: string = sNum < 10 ? `0${sNum}` : sNum.toString();
+        const pad = (n: number) => n < 10 ? `0${n}` : `${n}`;
 
-        // 替换格式字符串中的占位符（所有替换值都是string类型）
-        let result = fmtStr
-            .replace(/y/gi, y)
-            .replace(/mm/gi, padMM) // 先替换分钟（mm）
-            .replace(/m/gi, m)      // 再替换月份（m）
-            .replace(/d/gi, d)      // 替换为带"d"的天数（如7d）
-            .replace(/h/gi, h)
-            .replace(/s/gi, padS);
-
-        return result;
+        // 修复: 先用不含目标字符的占位符替换，最后统一还原，避免替换顺序互相污染
+        // 例如 "d" 替换会误伤 "h:mm:s" 里不存在的字符，但 "mm" 和 "m" 顺序仍需注意
+        return fmtStr
+            .replace(/\by\b/g,  `${yNum}`)
+            .replace(/mm/g,     pad(mmNum))   // 先替换 mm（分钟），再替换 m（月）
+            .replace(/\bm\b/g,  `${moNum}`)
+            .replace(/\bd\b/g,  `${dNum}d`)
+            .replace(/\bh\b/g,  `${hNum}`)
+            .replace(/\bs\b/g,  pad(sNum));
     }
     /**时间戳是否跨天
      * @param t1 时间戳

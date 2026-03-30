@@ -24,6 +24,7 @@ class TipSystem {
         tween: any;
     }>();                                           // 当前活动的提示
     private static _nodePool: NodePool = new NodePool();
+    private _prefab: Prefab | null = null;
     private static _prefabPromise: Promise<Prefab> | null = null;
 
     static async show(content: string) {
@@ -32,33 +33,28 @@ class TipSystem {
             return;
         }
         try {
-            // 如果已有相同内容的提示，先移除
             if (this._activeTips.has(content)) {
                 const existingTip = this._activeTips.get(content)!;
                 this._removeTip(existingTip.node, existingTip.tween);
             }
             const node = await this._getTipNode();
             const tipId = this._nextTipId++;
-            // 设置节点内容
             this._setupTipNode(node, content, tipId);
-            // 创建动画
             const newTween = this._createTipAnimation(node, tipId, content);
-            // 存储新提示
             this._activeTips.set(content, { id: tipId, node, tween: newTween });
-
         } catch (error) {
             console.error('Failed to show tip:', error);
         }
     }
 
     private static async _getTipNode(): Promise<Node> {
-        // 从对象池获取节点
-        if (this._nodePool.size() > 0) {
-            return this._nodePool.get();
-        }
-        // 确保只加载一次预制体
+        if (this._nodePool.size() > 0) return this._nodePool.get();
+        // 加载完成后缓存 Prefab 实例，避免重复持有 Promise
         if (!this._prefabPromise) {
-            this._prefabPromise = G.asset.getPrefab("ui", "common/tip", "SYSTEM");
+            this._prefabPromise = G.asset.getPrefab("ui", "common/tip", "SYSTEM").then(prefab => {
+                this._prefabPromise = null; // 清除 Promise，后续直接用缓存
+                return prefab;
+            });
         }
         const prefab = await this._prefabPromise;
         return instantiate(prefab);
@@ -108,8 +104,8 @@ class TipSystem {
             node.removeFromParent();
         }
         // 重置节点状态
+        node.setPosition(0, 0, 0);
         node.scaleXY = TIP_CONFIG.SCALE_FACTOR;
-        node.position = Vec3.ZERO;
         // 清理自定义属性
         delete (node as any).tipContent;
         // 放回对象池

@@ -11,30 +11,29 @@ export default class GeneralI18n {
     * @param replace 替换的字符
     */
     public getI18n(id: number, ...subst: any[]): string {
-        let txt = '';
         if (!G.config.language) {
             console.warn('languageMap is null');
-            return txt;
-        }
-        //@ts-ignore
-        let conf: languageConfig = G.config.language.get(id);
-        if (!conf) {
-            console.error('lan no id: ' + id);
-            return txt;
-        }
-        switch (C.languageId) {
-            case LanguageType.Chinese: txt = conf.zh; break;
-            case LanguageType.English: txt = conf.en; break;
-            case LanguageType.German: txt = conf.de; break;
-            case LanguageType.Japan: txt = conf.jp; break;
-            case LanguageType.Korean: txt = conf.kr; break;
-            case LanguageType.French: txt = conf.fr; break;
-            case LanguageType.Russian: txt = conf.ru; break;
-        }
-        if (!txt) {
             return '';
         }
-        txt = txt.replace(/\\n/g, '\n');
+        //@ts-ignore
+        const conf: languageConfig = G.config.language.get(id);
+        if (!conf) {
+            console.error('lan no id: ' + id);
+            return '';
+        }
+        // 直接用语言 key 索引，避免 switch 每次全量匹配
+        const langKey: Record<string, string> = {
+            [LanguageType.Chinese]: 'zh',
+            [LanguageType.English]: 'en',
+            [LanguageType.German]:  'de',
+            [LanguageType.Japan]:   'jp',
+            [LanguageType.Korean]:  'kr',
+            [LanguageType.French]:  'fr',
+            [LanguageType.Russian]: 'ru',
+        };
+        const field = langKey[C.languageId] ?? 'zh';
+        const txt = (conf[field] ?? '').replace(/\\n/g, '\n');
+        if (!txt) return '';
         return js.formatStr(txt, ...subst);
     }
 }

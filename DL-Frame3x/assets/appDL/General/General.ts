@@ -23,8 +23,8 @@ class General {
     public static event = new EventTarget();
     /** 全局资源管理器 */
     public static asset: AssetMgr;
-    /** 全局资源管理器(远程) */
-    public static assetRemote: AssetRemoteMgr;
+    /** 全局资源管理器(远程) — 全静态类，直接用 AssetRemoteMgr.loadAssetRemote() 调用 */
+    public static assetRemote: typeof AssetRemoteMgr;
     /** 音频管理 */ //@ts-ignore
     public static mp3: mp3Type;
     /** 配置管理 */ //@ts-ignore
@@ -51,7 +51,7 @@ class General {
     public static init(main: main) {
         G.main = main;
         G.asset = new AssetMgr();
-        G.assetRemote = new AssetRemoteMgr();
+        // AssetRemoteMgr 已全静态，无需实例化
 
         G.arrayMgr = new GeneralArrayMap();
         G.effectMgr = new GeneralEffect();

@@ -14,13 +14,11 @@ import gradient from "../Shader/gradient/gradient";
 import { maskplus } from "../Component/maskplus";
 
 function resetSiblingIndexByZindex(node: Node) {
-    let children = node.children;
-    let zorder = [];
-    for (var i = 0; i < children.length; i++) {
-        zorder.push({ node: children[i], zIndex: children[i].zIndex });
-    }
-    zorder.sort((a, b) => { return a.zIndex - b.zIndex });
-    for (var i = 0; i < zorder.length; i++) {
+    if (!node) return;
+    const children = node.children;
+    const zorder = children.map(n => ({ node: n, zIndex: n.zIndex }));
+    zorder.sort((a, b) => a.zIndex - b.zIndex);
+    for (let i = 0; i < zorder.length; i++) {
         zorder[i].node.setSiblingIndex(i);
     }
     return zorder;
@@ -31,8 +29,7 @@ if (!Object.getOwnPropertyDescriptor(Node.prototype, "nodes")) {
         nodes: {
             get(this: Node) {
                 if (!this.nodesCache) {
-                    //初始化一次
-                    var _cache = { nodesCache: {} };
+                    const _cache = { nodesCache: {} };
                     this.walk((_node) => {
                         _cache.nodesCache[_node.name] = _node;
                     });
@@ -41,12 +38,19 @@ if (!Object.getOwnPropertyDescriptor(Node.prototype, "nodes")) {
                 return this.nodesCache;
             },
         },
+        // 手动刷新 nodes 缓存（节点树增删后调用）
+        refreshNodes: {
+            value(this: Node) {
+                const cache: Record<string, Node> = {};
+                this.walk((_node) => {
+                    cache[_node.name] = _node;
+                });
+                this.attr({ nodesCache: cache });
+            },
+        },
         uiTransform: {
             get(this: Node) {
-                if (!this.getComponent(UITransform)) {
-                    this.addComponent(UITransform);
-                }
-                return this.getComponent(UITransform);
+                return this.getComponent(UITransform) ?? this.addComponent(UITransform);
             },
         },
         string: {
@@ -162,16 +166,10 @@ if (!Object.getOwnPropertyDescriptor(Node.prototype, "nodes")) {
         },
         opacity: {
             get(this: Node) {
-                if (!this.getComponent(UIOpacity)) {
-                    this.addComponent(UIOpacity);
-                }
-                return this.getComponent(UIOpacity).opacity;
+                return (this.getComponent(UIOpacity) ?? this.addComponent(UIOpacity)).opacity;
             },
             set(this: Node, v: number) {
-                if (!this.getComponent(UIOpacity)) {
-                    this.addComponent(UIOpacity);
-                }
-                this.getComponent(UIOpacity).opacity = v;
+                (this.getComponent(UIOpacity) ?? this.addComponent(UIOpacity)).opacity = v;
             },
         },
         animation: {
@@ -201,13 +199,10 @@ if (!Object.getOwnPropertyDescriptor(Node.prototype, "nodes")) {
         },
         spriteFrame: {
             get(this: Node) {
-                return this.getComponent(Sprite).spriteFrame;
+                return this.getComponent(Sprite)?.spriteFrame ?? null;
             },
             set(this: Node, v: SpriteFrame) {
-                if (!this.getComponent(Sprite)) {
-                    this.addComponent(Sprite);
-                }
-                this.getComponent(Sprite).spriteFrame = v;
+                (this.getComponent(Sprite) ?? this.addComponent(Sprite)).spriteFrame = v;
             }
         },
 

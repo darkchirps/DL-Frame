@@ -1,7 +1,7 @@
 /*******************************************************************************
  * 描述:    图片切换
 *******************************************************************************/
-import { Rect, CCInteger, SpriteFrame, _decorator, Component } from "cc";
+import { Rect, CCInteger, Sprite, SpriteFrame, _decorator, Component } from "cc";
 
 const { ccclass, property, menu } = _decorator;
 @ccclass
@@ -21,8 +21,10 @@ export default class listSpfs extends Component {
         return this._spriteIndex;
     }
     set spriteIndex(index: number) {
-        this.node.sprite.spriteFrame = this.spfs[index] || null;
+        const spr = this.node.getComponent(Sprite);
+        if (spr) spr.spriteFrame = this.spfs[index] ?? null;
         this._spriteIndex = index;
+        this.nowIdx = index; // 统一维护 nowIdx
     }
     private _spriteIndex: number = 0;
 
@@ -31,10 +33,11 @@ export default class listSpfs extends Component {
     }
 
     setSpf(idx: number) {
-        let spr = this.node.sprite;
+        const spr = this.node.getComponent(Sprite);
         if (spr) {
             this.nowIdx = idx;
-            spr.spriteFrame = this.spfs[idx];
+            this._spriteIndex = idx;
+            spr.spriteFrame = this.spfs[idx] ?? null;
         }
     }
 

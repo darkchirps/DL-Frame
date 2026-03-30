@@ -34,8 +34,9 @@ export default class LabelChange extends Label {
     private _num: number = 0;
     public set num(value: number) {
         this._num = value;
-        // 节流更新，如果 frameNum 为 1 则每帧都刷新
-        if (this.tickCount++ % Math.max(1, this.frameNum) === 0) {
+        // 节流更新，tickCount 取模防溢出
+        this.tickCount = (this.tickCount + 1) % 0x7fffffff;
+        if (this.tickCount % Math.max(1, this.frameNum) === 0) {
             this.updateLabel();
         }
     }

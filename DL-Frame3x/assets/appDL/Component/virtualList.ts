@@ -1,7 +1,7 @@
 /*******************************************************************************
  * 描述:    虚拟列表(含分页)
 *******************************************************************************/
-import { _decorator, Component, Node, ScrollView, Layout, EventHandler, NodePool, Size, Vec2, Vec3, UITransform, instantiate, js, size, v2, v3 } from 'cc';
+import { _decorator, Component, Node, ScrollView, Layout, EventHandler, NodePool, Size, Vec2, Vec3, UITransform, instantiate, js, size, v2, v3, EventTouch } from 'cc';
 
 const { ccclass, property, disallowMultiple, menu, executionOrder, requireComponent } = _decorator;
 
@@ -263,16 +263,14 @@ export default class virtualList extends Component {
         this._inited = true;
     }
 
-    private _onTouchStart(event: any) { // 3.x EventTouch
+    private _onTouchStart(event: EventTouch) {
         if (!this.isPageView) return;
-
-        // 3.x getLocation 返回 Vec2
         this._startTouchPos = event.getLocation();
         this._startTime = Date.now();
         this._scrollView.stopAutoScroll();
     }
 
-    private _onTouchEnd(event: any) {
+    private _onTouchEnd(event: EventTouch) {
         if (!this._inited || this._actualNumItems <= 0) return;
         if (!this.isPageView) return;
 

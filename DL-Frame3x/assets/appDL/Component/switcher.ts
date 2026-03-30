@@ -1,18 +1,4 @@
-/*
-company:LeGu Game
-author:ciniao
-
-仿FGUI的状态控制器
-将该脚本挂载到节点后开始编辑
-
-业务逻辑中，可通过以下2种方式切换状态
-switcher.statusIndex = 0;
-switcher.statusName = "open";
-
-使用示例，参见同目录下的 switcher.prefab
-*/
-
-import { CCBoolean, CCFloat, CCInteger, Font, math, CCString, Color, Component, Button, Enum, Label, LabelOutline, Node, RichText, sp, Sprite, SpriteFrame, UIOpacity, UITransform, Vec2, Vec3, _decorator } from "cc";
+import { CCBoolean, CCFloat, CCInteger, Font, math, CCString, Color, Component, Enum, Label, Node, RichText, Sprite, SpriteFrame, UIOpacity, UITransform, Vec2, Vec3, _decorator } from "cc";
 import { EDITOR } from "cc/env";
 const { ccclass, property, executeInEditMode } = _decorator;
 
@@ -51,7 +37,7 @@ export class StatusData {
     @property(CCFloat)
     public outlineWidth = 2;
     @property(SpriteFrame)
-    public spriteFrame;
+    public spriteFrame: SpriteFrame = null;
     @property(CCBoolean)
     public grayscale = false;
     @property(CCString)
@@ -63,7 +49,7 @@ export class StatusData {
     @property(CCInteger)
     public shadowblur = 0;
     @property(Font)
-    public label_font;
+    public label_font: Font = null;
     @property(CCInteger)
     public jianbianOpen = 0;
 }
@@ -355,10 +341,10 @@ export class switcher extends Component {
                 data.opacity = uiOpacity.opacity;
             }
 
-            let outline = item.getComponent(LabelOutline);
-            if (outline) {
-                data.outlinecolor = new Vec3(outline.color.r, outline.color.g, outline.color.b);
-                data.outlineWidth = outline.width;
+            let outline = item.getComponent(Label);
+            if (outline && outline.enableOutline) {
+                data.outlinecolor = new Vec3(outline.outlineColor.r, outline.outlineColor.g, outline.outlineColor.b);
+                data.outlineWidth = outline.outlineWidth;
             }
             datas.push(data);
         });
