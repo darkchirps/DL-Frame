@@ -35,7 +35,7 @@ if (!Object.getOwnPropertyDescriptor(cc.Node.prototype, "nodes")) {
                 return this.label ? this.label.string : this.richText.string;
             },
             set(this: cc.Node, str: string | number) {
-                if (!str && str !== 0) str = "";
+                if (str == null) str = "";
                 if (this.label) this.label.string = str.toString();
                 else if (this.richText) this.richText.string = str.toString();
             },
@@ -145,7 +145,15 @@ if (!Object.getOwnPropertyDescriptor(cc.Node.prototype, "nodes")) {
                 return this.getComponent(cc.ParticleSystem);
             }
         },
-
+        colorHex: {
+            get(this: cc.Node): string {
+                return this.color.toHEX("#rrggbb");
+            },
+            set(this: cc.Node, hex: string) {
+                if (!hex) return;
+                this.color = cc.color().fromHEX(hex);
+            }
+        },
 
         //新增组件
         virtualList: {
@@ -201,10 +209,11 @@ if (!Object.getOwnPropertyDescriptor(cc.Node.prototype, "nodes")) {
 
         uiPosition: {
             get(this: cc.Node) {
-                let startWp = this.convertToWorldSpaceAR(cc.Vec2.ZERO);
-                let startPos = G.main.rootNode.convertToNodeSpaceAR(startWp);
-                return cc.v3(startPos.x, startPos.y);
-            },
+                if (!G?.main?.rootNode) return cc.v3();
+                const wp = this.convertToWorldSpaceAR(cc.Vec2.ZERO);
+                const lp = G.main.rootNode.convertToNodeSpaceAR(wp);
+                return cc.v3(lp.x, lp.y);
+            }
         }
     });
 }

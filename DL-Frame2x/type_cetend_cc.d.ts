@@ -45,14 +45,14 @@ declare namespace cc {
         get mask(): cc.Mask;
         get sprite(): cc.Sprite;
         get spine(): sp.Skeleton;
-        get blockInputEvents(): sp.BlockInputEvents;
+        get blockInputEvents(): cc.BlockInputEvents;
         get button(): cc.Button;
         get editBox(): cc.EditBox;
         get layout(): cc.Layout;
         get pageView(): cc.PageView;
         get progressBar(): cc.ProgressBar;
         get scrollView(): cc.ScrollView;
-        get slider(): cc.cc.Slider;
+        get slider(): cc.Slider;
         get widget(): cc.Widget;
         get animation(): cc.Animation;
         get toggle(): cc.Toggle;
@@ -63,7 +63,7 @@ declare namespace cc {
 
         nodesType: k_v<cc.Node>;
         get nodes(): this["nodesType"];
-        nodesCache: object;
+        nodesCache: k_v<cc.Node>;
 
         //新增组件
         /**虚拟列表*/
@@ -79,6 +79,9 @@ declare namespace cc {
         get customPolygon(): customPolygon;
 
         get uiPosition(): cc.Vec3;
+        /** 十六进制颜色，getter 返回 "#rrggbb"，setter 接受 "#rrggbb" 或 "#rrggbbaa" */
+        get colorHex(): string;
+        set colorHex(hex: string);
     }
     interface Component {
         nodesType: k_v<cc.Node>;
