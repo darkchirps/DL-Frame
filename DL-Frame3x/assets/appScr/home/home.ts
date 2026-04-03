@@ -27,7 +27,7 @@ export class home extends UIScr {
     //按钮管理
     btnManager() {
         this.nodes.listGame1.click(() => {
-            UIMgr.ui.mahLoading.show();
+            
         })
     }
 }

@@ -154,6 +154,7 @@ if (!Object.getOwnPropertyDescriptor(cc.Node.prototype, "nodes")) {
                 this.color = cc.color().fromHEX(hex);
             }
         },
+        
 
         //新增组件
         virtualList: {

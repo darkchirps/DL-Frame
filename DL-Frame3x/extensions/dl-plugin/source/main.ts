@@ -30,6 +30,26 @@ export const methods: { [key: string]: (...any: any) => any } = {
         } catch (error) {
             console.log('---------------------------更新节点提示失败---------------------------');
         }
+    },
+    update_conf() {
+        console.log('开始更新配置提示');
+        const conf = require('./updateConf');
+        try {
+            conf.updateConf();
+            console.log('---------------------------更新配置提示完成---------------------------');
+        } catch (error) {
+            console.log('---------------------------更新配置提示失败---------------------------', error);
+        }
+    },
+    update_mp3() {
+        console.log('开始更新音频提示');
+        const mp3 = require('./updateMp3');
+        try {
+            mp3.updateMp3();
+            console.log('---------------------------更新音频提示完成---------------------------');
+        } catch (error) {
+            console.log('---------------------------更新音频提示失败---------------------------', error);
+        }
     }
 };
 

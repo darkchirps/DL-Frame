@@ -12,6 +12,9 @@ import GeneralShift from "./GeneralShift";
 import GeneralTime from "./GeneralTime";
 import GeneralValue from "./GeneralValue";
 import AssetRemoteMgr from "../Manager/AssetRemoteMgr";
+import NetMgr from "../Manager/NetMgr";
+import StoreMgr from "../Manager/StoreMgr";
+import LogMgr from "../Manager/LogMgr";
 
 class General {
     /**开启log*/
@@ -25,6 +28,12 @@ class General {
     public static asset: AssetMgr;
     /** 全局资源管理器(远程) — 全静态类，直接用 AssetRemoteMgr.loadAssetRemote() 调用 */
     public static assetRemote: typeof AssetRemoteMgr;
+    /** 网络请求管理 */
+    public static net: typeof NetMgr;
+    /** 运行时状态管理（内存级，不持久化） */
+    public static store: typeof StoreMgr;
+    /** 日志管理 */
+    public static log: typeof LogMgr;
     /** 音频管理 */ //@ts-ignore
     public static mp3: mp3Type;
     /** 配置管理 */ //@ts-ignore
@@ -51,7 +60,14 @@ class General {
     public static init(main: main) {
         G.main = main;
         G.asset = new AssetMgr();
-        // AssetRemoteMgr 已全静态，无需实例化
+
+        // 静态类直接挂引用，方便通过 G.xxx 访问
+        G.net = NetMgr;
+        G.store = StoreMgr;
+        G.log = LogMgr;
+
+        // 日志模块最先初始化，确保后续异常都能被捕获
+        LogMgr.init();
 
         G.arrayMgr = new GeneralArrayMap();
         G.effectMgr = new GeneralEffect();

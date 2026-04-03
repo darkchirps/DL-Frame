@@ -4,7 +4,8 @@
 import {
     Button, EditBox, Label, Animation, Layout, Mask, Node, Vec3, Toggle, Component, SpriteFrame,
     PageView, PageViewIndicator, ParticleSystem, ProgressBar, RichText, SafeArea, ScrollView, v3, View, PolygonCollider2D,
-    Slider, Sprite, UIOpacity, UITransform, Widget, js, sp, BlockInputEvents, EventTouch, view, CircleCollider2D, RigidBody2D
+    Slider, Sprite, UIOpacity, UITransform, Widget, js, sp, BlockInputEvents, EventTouch, view, CircleCollider2D, RigidBody2D,
+    director, Director
 } from "cc";
 import i18n from "../Component/i18n";
 import labelChange from "../Component/labelChange";
@@ -13,15 +14,36 @@ import virtualList from "../Component/virtualList";
 import gradient from "../Shader/gradient/gradient";
 import { maskplus } from "../Component/maskplus";
 
-function resetSiblingIndexByZindex(node: Node) {
-    if (!node) return;
-    const children = node.children;
-    const zorder = children.map(n => ({ node: n, zIndex: n.zIndex }));
-    zorder.sort((a, b) => a.zIndex - b.zIndex);
-    for (let i = 0; i < zorder.length; i++) {
-        zorder[i].node.setSiblingIndex(i);
+// 脏标记集合：记录本帧内需要重排子节点的父节点
+const _dirtyParents = new Set<Node>();
+let _sortScheduled = false;
+
+function _flushZIndexSort() {
+    _dirtyParents.forEach(parent => {
+        if (!parent || !parent.isValid) return;
+        const children = parent.children;
+        // 只有存在 __zIndex 标记的节点才参与排序，其余保持原位
+        const sorted = children.slice().sort((a, b) => {
+            const az = (a as any).__zIndex ?? a.getSiblingIndex();
+            const bz = (b as any).__zIndex ?? b.getSiblingIndex();
+            return az - bz;
+        });
+        for (let i = 0; i < sorted.length; i++) {
+            sorted[i].setSiblingIndex(i);
+        }
+    });
+    _dirtyParents.clear();
+    _sortScheduled = false;
+}
+
+function markZIndexDirty(parent: Node) {
+    if (!parent || !parent.isValid) return;
+    _dirtyParents.add(parent);
+    if (!_sortScheduled) {
+        _sortScheduled = true;
+        // 帧末统一排序，同一帧多次 set zIndex 只排序一次
+        director.once(Director.EVENT_AFTER_UPDATE, _flushZIndexSort);
     }
-    return zorder;
 }
 
 if (!Object.getOwnPropertyDescriptor(Node.prototype, "nodes")) {
@@ -76,12 +98,12 @@ if (!Object.getOwnPropertyDescriptor(Node.prototype, "nodes")) {
         },
         zIndex: {
             get(this: Node) {
-                return this.__zIndex == null ? this.getSiblingIndex() : this.__zIndex;
+                return (this as any).__zIndex ?? this.getSiblingIndex();
             },
             set(this: Node, val: number) {
-                // if (val == this.zIndex) return;
-                this.__zIndex = val;
-                resetSiblingIndexByZindex(this.parent);
+                if ((this as any).__zIndex === val) return; // 值未变则跳过
+                (this as any).__zIndex = val;
+                markZIndexDirty(this.parent);
             },
         },
         label: {

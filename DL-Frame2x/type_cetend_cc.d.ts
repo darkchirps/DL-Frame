@@ -34,6 +34,8 @@ declare namespace cc {
          * @param enableScale 可选,默认开启,缩放
          */
         click(fn: (sender?: this, type?: string, event?: cc.EventTouch) => void, enableScale?: boolean = true, clickSoundBool: boolean = true): void;
+        /**设置节点是否置灰true置灰反之取消置灰*/
+        setGray(isGray: boolean): void;
         /**是否关闭点击事件 */
         _touchEnabled: boolean;
 

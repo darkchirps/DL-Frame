@@ -62,7 +62,16 @@ sp.Skeleton.prototype.getLastAnimationName = function (this: sp.Skeleton) {
     //@ts-ignore
     return this._lastAni;
 };
-
+cc.Node.prototype.setGray = function (this: cc.Node, isGray: boolean) {
+    const matName = isGray ? "builtin-2d-gray-sprite" : "builtin-2d-sprite";
+    this.walk((node: cc.Node) => {
+        const sprite = node.getComponent(cc.Sprite);
+        if (sprite) {
+            const mat = cc.MaterialVariant.createWithBuiltin(matName, sprite);
+            sprite.setMaterial(0, mat);
+        }
+    }, () => {});
+};
 cc.Node.prototype.click = function (callback: Function, enableScale: boolean = true, clickSoundBool: boolean = true) {
     const node = this;
     node.unclick?.();
