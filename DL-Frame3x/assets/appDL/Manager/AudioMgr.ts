@@ -10,14 +10,28 @@ class _AudioMgr {
     private static _effectAudioSource: AudioSource | null = null;
     private static _mp3 = {}; // 存储所有音频资源
 
-    // 播放背景音乐
-    static playAudio(clip: AudioClip, loop: boolean = true) {
-        if (!this._musicNode) {
+    /** 确保音频节点有效，场景切换后自动重建 */
+    private static _ensureMusicNode() {
+        if (!this._musicNode || !this._musicNode.isValid) {
             this._musicNode = new Node();
             this._musicNode.name = "MusicNode";
-            director.getScene().addChild(this._musicNode);
+            director.addPersistRootNode(this._musicNode); // 改为常驻节点，避免场景切换销毁
             this._musicAudioSource = this._musicNode.addComponent(AudioSource);
         }
+    }
+
+    private static _ensureEffectNode() {
+        if (!this._effectNode || !this._effectNode.isValid) {
+            this._effectNode = new Node();
+            this._effectNode.name = "EffectNode";
+            director.addPersistRootNode(this._effectNode); // 改为常驻节点
+            this._effectAudioSource = this._effectNode.addComponent(AudioSource);
+        }
+    }
+
+    // 播放背景音乐
+    static playAudio(clip: AudioClip, loop: boolean = true) {
+        this._ensureMusicNode();
         this._musicAudioSource.stop();
         this._musicAudioSource.clip = clip;
         this._musicAudioSource.play();
@@ -32,12 +46,7 @@ class _AudioMgr {
 
     // 播放音效
     static playEffect(clip: AudioClip, loop: boolean = false) {
-        if (!this._effectNode) {
-            this._effectNode = new Node();
-            this._effectNode.name = "EffectNode";
-            director.getScene().addChild(this._effectNode);
-            this._effectAudioSource = this._effectNode.addComponent(AudioSource);
-        }
+        this._ensureEffectNode();
         this._effectAudioSource.playOneShot(clip, 1);
     }
 

@@ -267,6 +267,10 @@ if (!Object.getOwnPropertyDescriptor(Node.prototype, "nodes")) {
         },
         uiPosition: {
             get(this: Node) {
+                if (!G?.main?.other?.uiTransform) {
+                    console.warn('uiPosition: G.main.other is not ready');
+                    return v3(0, 0);
+                }
                 let startWp = this.uiTransform.convertToWorldSpaceAR(Vec3.ZERO);
                 let startPos = G.main.other.uiTransform.convertToNodeSpaceAR(startWp);
                 return v3(startPos.x, startPos.y);

@@ -25,11 +25,11 @@ class NodePoolMgr {
     }
     /**清除对象池所有节点 */
     static clearAll() {
-        for (let key in this.nodePool) {
-            if (Object.prototype.hasOwnProperty.call(this.nodePool, key)) {
-                (this.nodePool[key] as NodePool).clear();
-            }
-        }
+        // Map 必须用 forEach 或 for...of 遍历，for...in 对 Map 无效
+        this.nodePool.forEach((pool) => {
+            pool.clear();
+        });
+        this.nodePool.clear();
     }
     /** 获取指定对象池大小 */
     static getPoolSize(p: poolType): number {

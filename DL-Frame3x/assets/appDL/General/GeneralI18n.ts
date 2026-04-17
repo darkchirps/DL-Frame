@@ -22,11 +22,12 @@ export default class GeneralI18n {
             return '';
         }
         // 直接用语言 key 索引，避免 switch 每次全量匹配
+        // 注意：映射值需与配置表中的字段名保持一致
         const langKey: Record<string, string> = {
             [LanguageType.Chinese]: 'zh',
             [LanguageType.English]: 'en',
             [LanguageType.German]:  'de',
-            [LanguageType.Japan]:   'jp',
+            [LanguageType.Japan]:   'ja',   // 修复：LanguageType.Japan = "ja"，配置表字段应为 'ja'
             [LanguageType.Korean]:  'kr',
             [LanguageType.French]:  'fr',
             [LanguageType.Russian]: 'ru',

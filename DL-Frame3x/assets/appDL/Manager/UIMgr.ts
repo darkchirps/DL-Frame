@@ -78,16 +78,26 @@ export default class UIMgr {
      */
     public static onUIRemove(uiClass: UIClass) {
         if (uiClass.uiConfig.fullScreen) {
-            var topFullScreenUI;
+            // 修复：按 zIndex 选最顶层的全屏 UI，而不是依赖 for...in 遍历顺序
+            let topFullScreenUI: UIClass | null = null;
+            let maxZ = -1;
             for (let id in this.ui) {
-                let _uiclass = this.ui[id];
-                if (_uiclass.uiConfig.ID != uiClass.uiConfig.ID && _uiclass.uiConfig.fullScreen && _uiclass.isShow && _uiclass.status != UIStatus.REMOVED && _uiclass.status != UIStatus.REMOVING) {
-                    topFullScreenUI = _uiclass;
+                const u = this.ui[id];
+                if (
+                    u.uiConfig.ID !== uiClass.uiConfig.ID &&
+                    u.uiConfig.fullScreen &&
+                    u.isShow &&
+                    u.status !== UIStatus.REMOVED &&
+                    u.status !== UIStatus.REMOVING &&
+                    u.node?.isValid &&
+                    u.node.zIndex > maxZ
+                ) {
+                    maxZ = u.node.zIndex;
+                    topFullScreenUI = u;
                 }
             }
             if (topFullScreenUI?.isShow) {
                 console.log(`关闭了全屏窗口${uiClass.uiConfig.ID}，自动显示${topFullScreenUI.uiConfig.ID}`);
-                // 改进: 对应 active=false，这里恢复 active=true
                 topFullScreenUI.node.active = true;
             }
         }

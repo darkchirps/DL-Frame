@@ -27,6 +27,9 @@ class TipSystem {
     private _prefab: Prefab | null = null;
     private static _prefabPromise: Promise<Prefab> | null = null;
 
+    /** prefab 缓存，加载完成后直接复用 */
+    private static _cachedPrefab: any = null;
+
     static async show(content: string) {
         if (!content) {
             console.warn('Tip content cannot be empty');
@@ -49,14 +52,18 @@ class TipSystem {
 
     private static async _getTipNode(): Promise<Node> {
         if (this._nodePool.size() > 0) return this._nodePool.get();
-        // 加载完成后缓存 Prefab 实例，避免重复持有 Promise
+
+        // 已有缓存的 prefab，直接实例化
+        if (this._cachedPrefab) return instantiate(this._cachedPrefab);
+
+        // 没有进行中的加载才发起，防止并发重复请求
         if (!this._prefabPromise) {
-            this._prefabPromise = G.asset.getPrefab("ui", "common/tip", "SYSTEM").then(prefab => {
-                this._prefabPromise = null; // 清除 Promise，后续直接用缓存
-                return prefab;
-            });
+            this._prefabPromise = G.asset.getPrefab("ui", "common/tip", "SYSTEM");
         }
         const prefab = await this._prefabPromise;
+        // 加载完成后缓存 prefab，清除 Promise
+        this._cachedPrefab = prefab;
+        this._prefabPromise = null;
         return instantiate(prefab);
     }
 
@@ -103,9 +110,9 @@ class TipSystem {
         if (node.parent) {
             node.removeFromParent();
         }
-        // 重置节点状态
+        // 重置节点状态（动画结束时 scaleXY 已接近 0，必须显式重置为初始值）
         node.setPosition(0, 0, 0);
-        node.scaleXY = TIP_CONFIG.SCALE_FACTOR;
+        node.scaleXY = 1;
         // 清理自定义属性
         delete (node as any).tipContent;
         // 放回对象池

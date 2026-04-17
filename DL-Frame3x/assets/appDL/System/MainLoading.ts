@@ -16,6 +16,12 @@ export class MainLoading extends Component {
         this.timer = 0.15;
         this.showBool = true;
     }
+
+    onDisable(): void {
+        this.showBool = false;
+        this.timer = 0;
+    }
+
     update(dt: number): void {
         if (!this.showBool) return;
         this.timer -= dt;

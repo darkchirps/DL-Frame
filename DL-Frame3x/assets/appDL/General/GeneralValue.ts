@@ -29,12 +29,19 @@ export default class GeneralValue {
         var range = Math.abs(i1 - i2) + 1;
         return Math.floor(Math.random() * range + Math.min(i1, i2));
     }
-    /**随机num个数,指定范围和个数 min取不到*/
+    /**
+     * 随机 num 个不重复整数，范围 [min, max)，即 min 可取到，max 取不到
+     * @param min 最小值（包含）
+     * @param max 最大值（不包含）
+     * @param num 个数
+     */
     public randomRange(min: number, max: number, num: number): number[] {
-        if (num > max - min) return [];
+        const rangeSize = max - min;
+        // num 超过可用范围时无法取到足够不重复的数
+        if (num > rangeSize || rangeSize <= 0) return [];
         const set = new Set<number>();
         while (set.size < num) {
-            set.add(Math.floor(Math.random() * (max - min) + min + 1));
+            set.add(Math.floor(Math.random() * rangeSize) + min);
         }
         return Array.from(set);
     }

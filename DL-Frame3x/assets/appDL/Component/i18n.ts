@@ -14,11 +14,15 @@ export default class I18n extends Component {
 
     private label: Label | null = null;
 
+    private _boundSetStr: () => void;
+
     onLoad() {
         this.label = this.getComponent(Label);
         if (this.textId <= 0) console.warn("i18n: textId not selected");
+        // 绑定 this，确保回调内 this 指向组件实例，同时保存引用用于 unwatch
+        this._boundSetStr = this.setStr.bind(this);
         // watch 注册时会立即触发一次 setStr，无需手动调用
-        C.watch("languageId", this.setStr, this.node);
+        C.watch("languageId", this._boundSetStr, this.node);
     }
 
     /**重新设置节点多语言*/
@@ -41,7 +45,9 @@ export default class I18n extends Component {
     }
 
     onDestroy() {
-        C.unwatch("languageId", this.setStr);
+        // 使用保存的绑定引用解绑，与注册时的引用一致
+        C.unwatch("languageId", this._boundSetStr);
+        this._boundSetStr = null;
         this.label = null;
     }
 }

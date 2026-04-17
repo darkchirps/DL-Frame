@@ -15,15 +15,22 @@ class _ConfigMgr {
                     // 获取二进制数据
                     const buffer = bin.buffer();
                     if (buffer) {
-                        // 解析二进制数据
-                        const jsonString = new TextDecoder('utf-8').decode(new Uint8Array(buffer));
-                        const configData = JSON.parse(jsonString);
-                        const fileName = bin.name.replace('.bin', '');
-                        this._bin[fileName] = configData;
-                        console.log(`加载二进制配置成功: ${bin.name}`);
+                        try {
+                            // 解析二进制数据
+                            const jsonString = new TextDecoder('utf-8').decode(new Uint8Array(buffer));
+                            const configData = JSON.parse(jsonString);
+                            const fileName = bin.name.replace('.bin', '');
+                            this._bin[fileName] = configData;
+                            console.log(`加载二进制配置成功: ${bin.name}`);
+                        } catch (e) {
+                            console.error(`解析二进制配置失败: ${bin.name}`, e);
+                        }
                     }
                 }
             });
+            callback && callback(new Proxy(ConfigMgr._bin, binProxyHandler));
+        }).catch((err) => {
+            console.error(`initBin 加载失败: ${bName}/${dir}`, err);
             callback && callback(new Proxy(ConfigMgr._bin, binProxyHandler));
         });
     }
@@ -37,6 +44,9 @@ class _ConfigMgr {
                     console.log(`加载json配置成功: ${json.name}`);
                 }
             });
+            callback && callback(new Proxy(ConfigMgr._json, jsonProxyHandler));
+        }).catch((err) => {
+            console.error(`initJson 加载失败: ${bName}/${dir}`, err);
             callback && callback(new Proxy(ConfigMgr._json, jsonProxyHandler));
         });
     }

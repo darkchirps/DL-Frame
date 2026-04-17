@@ -173,11 +173,10 @@ export class TaskQueue {
     }
     
     /**
-     * 清空队列
+     * 清空队列（只清空等待中的任务，不影响当前正在执行的任务）
      */
     public clear(): void {
         this.queue = [];
-        this.currentTask = null;
     }
     
     /**
@@ -230,22 +229,35 @@ export class TaskQueue {
     }
     
     /**
-     * 执行单个任务
+     * 执行单个任务（支持 timeout 超时）
      */
     private async executeTask(task: Task): Promise<any> {
         // 如果有前置条件，先检查
         if (task.condition && !task.condition()) {
             throw new Error(`Task "${task.name}" condition not met`);
         }
-        
-        // 执行任务函数
-        return await task.execute();
+
+        // 无超时限制，直接执行
+        if (!task.timeout || task.timeout <= 0) {
+            return await task.execute();
+        }
+
+        // 带超时的执行
+        return await Promise.race([
+            task.execute(),
+            new Promise<never>((_, reject) =>
+                setTimeout(
+                    () => reject(new Error(`Task "${task.name}" timed out after ${task.timeout}ms`)),
+                    task.timeout
+                )
+            )
+        ]);
     }
     
     /**
      * 生成任务ID
      */
     private generateId(): string {
-        return `task_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+        return `task_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`;
     }
 }

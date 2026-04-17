@@ -18,7 +18,7 @@
 *******************************************************************************/
 
 import { Node, sys } from "cc";
-import { Gvent, LanguageType } from "../System/GlobalEventEnum";
+import { LanguageType } from "../System/GlobalEventEnum";
 
 /** 通用存储key */
 export enum cKey {
@@ -54,8 +54,12 @@ class CacheMgr {
 
     // 改进4: init 写入默认值时静默，不触发 watch 回调（此时 watch 尚未注册）
     static init() {
-        for (let i in cKey) {
-            if (this[i] === null) this[i] = null; // 触发 setter 写入默认值，静默模式
+        // 逐个检查，若 localStorage 中不存在则通过 setter 写入默认值
+        for (const i in cKey) {
+            if (this.get(i as cKey) === null) {
+                // 触发 setter，setter 内部会写入对应的默认值
+                this[i] = null;
+            }
         }
     }
 

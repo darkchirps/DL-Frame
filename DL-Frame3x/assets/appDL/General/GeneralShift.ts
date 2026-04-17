@@ -7,20 +7,10 @@ import { Sprite, SpriteFrame, Texture2D, ImageAsset, sys } from "cc";
 export default class GeneralShift {
     /**base64转spriteFrame*/
     public Base64SpriteFrame(base64Data: string, sprite?: Sprite) {
-        // assetManager.loadRemote(base64Data, { ext: '.png' }, (err, imgAsset: ImageAsset) => {
-        //     if (err) {
-        //         return;
-        //     }
-
-        //     let texture = new Texture2D();
-        //     texture.image = imgAsset;
-        //     let sf = new SpriteFrame();
-        //     sf.texture = texture;
-        //     // do something with the sprite frame
-        // });
         return new Promise<SpriteFrame>((resolve, reject) => {
             try {
-                const iconData = base64Data.startsWith('data:') ? base64Data : `data:image/jpg;base64,${base64Data}`;
+                // 修复：image/jpg 不是合法 MIME，统一改为 image/jpeg
+                const iconData = base64Data.startsWith('data:') ? base64Data : `data:image/jpeg;base64,${base64Data}`;
                 const image = new Image();
                 const texture = new Texture2D();
                 const frame = new SpriteFrame();
@@ -116,11 +106,11 @@ export default class GeneralShift {
             link.download = fileNameToSaveAs;
             document.body.appendChild(link);
             link.click();
-            // 清理
+            // 延长清理时间，确保浏览器有足够时间触发下载后再撤销 URL
             setTimeout(() => {
                 document.body.removeChild(link);
                 (window.URL || (window as any).webkitURL).revokeObjectURL(url);
-            }, 100);
+            }, 1000);
         } catch (e) {
             console.warn('saveForBrowser error', e);
         }

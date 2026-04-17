@@ -4,15 +4,15 @@
 export default class GeneralTime {
     /**
      * 将一个>0的秒数（时长）转换为指定格式的字符串
-     * 支持的格式占位符：y(年)、m(月)、d(天)、h(小时)、mm(分钟)、s(秒)
-     * 特殊处理：天数会自动拼接字母"d"，如7天展示为"7d"
+     * 支持的格式占位符：{y}(年)、{mo}(月)、{d}(天)、{h}(小时)、{mm}(分钟)、{s}(秒)
+     * 示例格式："{y}-{mo}-{d} {h}:{mm}:{s}"
      * @param time 秒数（时长，>0）
-     * @param fmtStr 时间格式，默认 "y-m-d h:mm:s"
+     * @param fmtStr 时间格式，默认 "{d} {h}:{mm}:{s}"
      */
-    public timetostr(time: number, fmtStr = "y-m-d h:mm:s") {
+    public timetostr(time: number, fmtStr = "{d} {h}:{mm}:{s}") {
         if (time <= 0) return "0d 00:00:00";
 
-        let remaining = time;
+        let remaining = Math.floor(time); // 统一取整，避免浮点精度问题
         const YEAR_SEC  = 365 * 24 * 60 * 60;
         const MONTH_SEC = 30  * 24 * 60 * 60;
         const DAY_SEC   = 24  * 60 * 60;
@@ -24,19 +24,18 @@ export default class GeneralTime {
         const dNum  = Math.floor(remaining / DAY_SEC);   remaining %= DAY_SEC;
         const hNum  = Math.floor(remaining / HOUR_SEC);  remaining %= HOUR_SEC;
         const mmNum = Math.floor(remaining / MIN_SEC);
-        const sNum  = Math.floor(remaining % MIN_SEC);
+        const sNum  = remaining % MIN_SEC;
 
         const pad = (n: number) => n < 10 ? `0${n}` : `${n}`;
 
-        // 修复: 先用不含目标字符的占位符替换，最后统一还原，避免替换顺序互相污染
-        // 例如 "d" 替换会误伤 "h:mm:s" 里不存在的字符，但 "mm" 和 "m" 顺序仍需注意
+        // 使用 {占位符} 格式，彻底避免单字母正则边界匹配的歧义问题
         return fmtStr
-            .replace(/\by\b/g,  `${yNum}`)
-            .replace(/mm/g,     pad(mmNum))   // 先替换 mm（分钟），再替换 m（月）
-            .replace(/\bm\b/g,  `${moNum}`)
-            .replace(/\bd\b/g,  `${dNum}d`)
-            .replace(/\bh\b/g,  `${hNum}`)
-            .replace(/\bs\b/g,  pad(sNum));
+            .replace(/\{y\}/g,  `${yNum}`)
+            .replace(/\{mo\}/g, `${moNum}`)
+            .replace(/\{d\}/g,  `${dNum}d`)
+            .replace(/\{h\}/g,  `${hNum}`)
+            .replace(/\{mm\}/g, pad(mmNum))
+            .replace(/\{s\}/g,  pad(sNum));
     }
     /**时间戳是否跨天
      * @param t1 时间戳

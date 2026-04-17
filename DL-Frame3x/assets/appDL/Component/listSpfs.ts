@@ -44,6 +44,11 @@ export default class listSpfs extends Component {
     nowIdx: number = 0;
 
     get rectData(): Rect {
-        return this.spfs[this.nowIdx].rect;
+        const spf = this.spfs[this.nowIdx];
+        if (!spf) {
+            console.warn(`listSpfs: spfs[${this.nowIdx}] is null or out of range`);
+            return new Rect();
+        }
+        return spf.rect;
     }
 }

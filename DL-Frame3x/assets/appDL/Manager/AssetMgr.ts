@@ -126,10 +126,15 @@ export default class AssetMgr {
             const entry = this.assetsInfo[pathID];
 
             if (entry.asset?.isValid) {
-                if (!entry.tag[assetTag]) {
+                // 每次获取都增加引用计数，与 decRefByTag 保持对称
+                // 若该 tag 已持有引用则先 dec 再 add，保证计数不累积
+                if (entry.tag[assetTag]) {
+                    // tag 已存在，引用计数不变，仅刷新时间
+                } else {
                     entry.asset.addRef();
+                    entry.tag[assetTag] = 1;
                 }
-                entry.tag[assetTag] = 1;
+                entry.lastGetTime = Date.now();
                 resolve(entry.asset);
                 return;
             }
@@ -179,8 +184,9 @@ export default class AssetMgr {
             if (entry?.asset?.isValid && entry.tag[assetTag]) {
                 entry.asset.decRef();
                 delete entry.tag[assetTag];
+                // 修复1：只更新被释放资源的 lastGetTime，不污染其他资源的冷却计时
+                entry.lastGetTime = Date.now();
             }
-            entry.lastGetTime = Date.now();
         }
     }
     public _autoRef() {
@@ -190,10 +196,15 @@ export default class AssetMgr {
             const entry = this.assetsInfo[path];
             if (now - entry.lastGetTime <= 5 * 60 * 1000) continue;
             const asset = entry.asset;
-            if (!asset || !asset.isValid || asset.refCount <= 1) {
+            // 修复2：业务层无任何 tag 持有时（tag 为空），才视为可释放
+            const hasActiveTags = Object.keys(entry.tag).length > 0;
+            if (!hasActiveTags && (!asset || !asset.isValid || asset.refCount <= 1)) {
                 if (asset?.isValid) {
                     log("释放资源==>", asset);
+                    // 修复3：decRef 到 0 后引擎会自动回收，同时从 bundle 中释放引用
                     asset.decRef();
+                    const bundle = assetManager.getBundle(path.split("_")[0]);
+                    bundle?.release(asset.nativeUrl || path, asset.constructor as typeof Asset);
                 }
                 delete this.assetsInfo[path];
             }

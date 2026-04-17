@@ -184,11 +184,14 @@ export class maskplus extends Component {
     /* ***************get/set*************** */
     private _setFollowNode(value_: Node) {
         this._followNode = value_;
-        // 偏移坐标
-        let offsetV3 = this.followNode ? v3(this.followNode.position.clone().subtract(this.originV3)) : v3();
-        this._polygonComp.points.forEach((v) => {
-            v.add2f(offsetV3.x, offsetV3.y);
-        });
+        // 偏移坐标：用新数组替换，不直接修改原数组元素（直接修改不会触发 Cocos 内部 setter）
+        const offsetV3 = this.followNode
+            ? v3(this.followNode.position.clone().subtract(this.originV3))
+            : v3();
+        const newPoints = this._polygonComp.points.map(v =>
+            v2(v.x + offsetV3.x, v.y + offsetV3.y)
+        );
+        this._polygonComp['_points'] = newPoints;
         this.updateMask();
     }
     /* ***************功能函数*************** */
@@ -198,19 +201,23 @@ export class maskplus extends Component {
         if (!this.isValid || !this._maskComp.graphics || this._maskComp.type !== Mask.Type.GRAPHICS_STENCIL) {
             return;
         }
+        const points = this._polygonComp.points;
+        // 空点数组时不绘制，避免访问 points[0] 崩溃
+        if (!points || points.length < 3) return;
+
         // 绘制遮罩
         //@ts-ignore
         this._maskComp.graphics.clear();
         //@ts-ignore
         this._maskComp.graphics.moveTo(
-            this._polygonComp.points[0].x + this._polygonComp.offset.x,
-            this._polygonComp.points[0].y + this._polygonComp.offset.y
+            points[0].x + this._polygonComp.offset.x,
+            points[0].y + this._polygonComp.offset.y
         );
-        for (let kN = 1; kN < this._polygonComp.points.length; ++kN) {
+        for (let kN = 1; kN < points.length; ++kN) {
             //@ts-ignore
             this._maskComp.graphics.lineTo(
-                this._polygonComp.points[kN].x + this._polygonComp.offset.x,
-                this._polygonComp.points[kN].y + this._polygonComp.offset.y
+                points[kN].x + this._polygonComp.offset.x,
+                points[kN].y + this._polygonComp.offset.y
             );
         }
         //@ts-ignore

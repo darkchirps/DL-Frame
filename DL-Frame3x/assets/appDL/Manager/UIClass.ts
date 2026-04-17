@@ -54,13 +54,11 @@ export class UIClass {
         this.status = UIStatus.REMOVING;
         const n = this.node;
         const finish = () => {
-            if (n && n.isValid) {
-                n.destroy();
-                UIMgr.get(n.name).onRemove();
-            }
+            // 修复1：直接调用 this.onRemove()，不通过 UIMgr.get(n.name) 绕行，避免 undefined 崩溃
+            if (n && n.isValid) n.destroy();
+            this.onRemove();
             this._parentNode = null;
             this._data = null;
-            this.status = UIStatus.REMOVED;
         };
         this.removePopup(finish);
     }
@@ -71,12 +69,20 @@ export class UIClass {
             done();
             return;
         }
+        // 修复2：监听节点销毁事件（场景切换等外部销毁），确保 done 一定被调用一次
+        let finished = false;
+        const safeDone = () => {
+            if (finished) return;
+            finished = true;
+            done();
+        };
+        n.once(Node.EventType.NODE_DESTROYED, safeDone);
         tween(n)
             .to(0.05, { scaleXY: 1.1 })
             .to(0.05, { scaleXY: 1 })
             .to(0.1, { scaleXY: 0.1 })
             .call(() => {
-                done && done();
+                safeDone();
             })
             .start();
     }
@@ -113,8 +119,17 @@ export class UIClass {
         G.main.loadingNode.active = true;
         let prePath = this.uiConfig.parfabPath + '/' + this.uiConfig.ID;
         const prefab = await G.asset.getPrefab(this.uiConfig.bundleName, prePath, this.uiConfig.ID);
-        //@ts-ignore
-        if (!prefab || this.status === UIStatus.REMOVING || this.status === UIStatus.REMOVED) return console.log("UI实例化失败");
+        // await 结束后重新读取 status（TS 类型收窄会误判，强制宽化为 UIStatus 联合类型）
+        const statusAfterLoad = this.status as UIStatus;
+        // 修复1：无论何种原因中止，都先关闭加载遮罩，避免遮罩永久显示
+        // 修复2：若加载期间被 remove() 标记为 REMOVING/REMOVED，释放已增加的引用计数后中止
+        if (!prefab || statusAfterLoad === UIStatus.REMOVING || statusAfterLoad === UIStatus.REMOVED) {
+            G.main.loadingNode.active = false;
+            if (prefab) G.asset.decRefByTag(this.uiConfig.ID);
+            this.status = UIStatus.REMOVED;
+            console.log("UI实例化中止", this.uiConfig.ID);
+            return;
+        }
         // 实例化节点
         const n = instantiate(prefab);
         this.node = n;

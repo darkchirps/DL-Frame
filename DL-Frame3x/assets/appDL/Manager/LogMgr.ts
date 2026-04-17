@@ -74,20 +74,20 @@ class _LogMgr {
         this._buffer.push(entry);
         if (this._buffer.length > this._maxSize) this._buffer.shift();
 
-        // 控制台输出（受 G.openLog 控制）
-        if (typeof G !== "undefined" && !G.openLog) return;
-        const prefix = `[${tag}]`;
-        if (level === "log")   console.log(prefix, msg, data ?? "");
-        if (level === "warn")  console.warn(prefix, msg, data ?? "");
-        if (level === "error") console.error(prefix, msg, data ?? "");
-
-        // error 级别自动上报
+        // error 级别无论 openLog 开关，始终上报和发送全局事件
         if (level === "error") {
             this._reporter?.(entry);
             if (typeof G !== "undefined") {
                 G.event?.emit("GlobalError", entry);
             }
         }
+
+        // 控制台输出（受 G.openLog 控制）
+        if (typeof G !== "undefined" && !G.openLog) return;
+        const prefix = `[${tag}]`;
+        if (level === "log")   console.log(prefix, msg, data ?? "");
+        if (level === "warn")  console.warn(prefix, msg, data ?? "");
+        if (level === "error") console.error(prefix, msg, data ?? "");
     }
 
     // ── 日志查询 ─────────────────────────────────────────────

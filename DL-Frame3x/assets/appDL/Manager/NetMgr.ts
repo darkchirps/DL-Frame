@@ -70,6 +70,9 @@ class _NetMgr {
     private static _wsReconnectTimer: any = null;
     private static _wsReconnectDelay: number = 3000;
     private static _wsAutoReconnect: boolean = true;
+    /** 修复1：重连次数上限，超过后停止重连 */
+    private static _wsMaxReconnect: number = 10;
+    private static _wsReconnectCount: number = 0;
 
     /** 统一错误回调，业务层可覆盖 */
     public static onError: ((code: number, msg: string) => void) | null = null;
@@ -206,6 +209,8 @@ class _NetMgr {
 
         this._ws.onopen = () => {
             LogMgr.log("NetMgr", `WebSocket 已连接: ${this._wsUrl}`);
+            // 修复1：连接成功后重置重连计数
+            this._wsReconnectCount = 0;
             if (this._wsReconnectTimer) {
                 clearTimeout(this._wsReconnectTimer);
                 this._wsReconnectTimer = null;
@@ -229,6 +234,13 @@ class _NetMgr {
         this._ws.onclose = () => {
             LogMgr.warn("NetMgr", "WebSocket 断开");
             if (this._wsAutoReconnect) {
+                // 修复1：超过最大重连次数后停止，避免重连风暴
+                if (this._wsReconnectCount >= this._wsMaxReconnect) {
+                    LogMgr.error("NetMgr", `WebSocket 重连次数已达上限 ${this._wsMaxReconnect}，停止重连`);
+                    return;
+                }
+                this._wsReconnectCount++;
+                LogMgr.warn("NetMgr", `WebSocket 第 ${this._wsReconnectCount}/${this._wsMaxReconnect} 次重连...`);
                 this._wsReconnectTimer = setTimeout(() => this._wsCreate(), this._wsReconnectDelay);
             }
         };
@@ -258,9 +270,21 @@ class _NetMgr {
     /** 主动断开 WebSocket */
     public static wsDisconnect() {
         this._wsAutoReconnect = false;
+        this._wsReconnectCount = 0;
         if (this._wsReconnectTimer) clearTimeout(this._wsReconnectTimer);
         this._ws?.close();
         this._ws = null;
+        // 修复2：断开时清理所有 handlers，防止闭包内存泄漏
+        this._wsHandlers.clear();
+    }
+
+    /** 清理指定类型或全部 WebSocket 消息监听器 */
+    public static wsClearHandlers(type?: string) {
+        if (type) {
+            this._wsHandlers.delete(type);
+        } else {
+            this._wsHandlers.clear();
+        }
     }
 
     /** WebSocket 是否已连接 */

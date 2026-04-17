@@ -54,11 +54,11 @@ class GeneralX {
     // }
     /**判断一点是否在矩形框内*/
     public static isPointInBox(point: Vec3, boxNode: Node): boolean {
-        let boxLeft = boxNode.x - boxNode.uiTransform.width / 2;
-        let boxRight = boxNode.x + boxNode.uiTransform.width / 2;
-        let boxTop = boxNode.y - boxNode.uiTransform.height / 2;
-        let boxBottom = boxNode.y + boxNode.uiTransform.height / 2;
-        return point.x >= boxLeft && point.x <= boxRight && point.y <= boxBottom && point.y >= boxTop;
+        const hw = boxNode.uiTransform.width  / 2;
+        const hh = boxNode.uiTransform.height / 2;
+        // Cocos Y 轴向上：minY = center.y - hh，maxY = center.y + hh
+        return point.x >= boxNode.x - hw && point.x <= boxNode.x + hw
+            && point.y >= boxNode.y - hh && point.y <= boxNode.y + hh;
     }
     /** 判断两个矩形（由 Node + UITransform 定义的中心坐标和宽高）是否相交 */
     public static isBoxIntersect(boxA: Node, boxB: Node): boolean {

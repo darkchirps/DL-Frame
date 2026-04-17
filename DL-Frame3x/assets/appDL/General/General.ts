@@ -94,7 +94,13 @@ const originalConsoleMethods: Record<ConsoleMethod, Function> = {
     error: console.error.bind(console)
 };
 const createConsoleHandler = <T extends ConsoleMethod>(method: T) => {
-    return (...args: Parameters<typeof console[T]>) => { if (G.openLog) { originalConsoleMethods[method](...args); } };
+    // 使用函数而非箭头函数，延迟读取 G.openLog，避免模块加载时 G 尚未初始化
+    return function (...args: Parameters<typeof console[T]>) {
+        // G 未初始化时默认输出，初始化后受 openLog 控制
+        if (typeof G === 'undefined' || G.openLog) {
+            originalConsoleMethods[method](...args);
+        }
+    };
 };
 console.log = createConsoleHandler('log');
 console.warn = createConsoleHandler('warn');

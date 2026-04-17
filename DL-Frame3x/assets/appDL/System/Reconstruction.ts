@@ -131,19 +131,27 @@ Node.prototype.touch = function (fun: Function, conf: any = {}) {
 
 // 点击事件快捷方法
 Node.prototype.click = function (fun: Function, enableScale: boolean = true) {
+    // 清理旧的 click 绑定
+    if (this._clickScaleHandler) {
+        this._clickScaleHandler.cleanup();
+    }
+    if (this._clickHandler) {
+        this._clickHandler.cleanup();
+    }
+
     const scaleStart = this.scaleXY;
     const scaleEffect = enableScale ? 0.05 : 0;
 
-    // 创建点击动画效果
-    new TouchHandler(this, (_, type) => {
+    // 创建点击动画效果，保存引用以便后续清理
+    this._clickScaleHandler = new TouchHandler(this, (_, type) => {
         if (type === Node.EventType.TOUCH_START) this.scaleXY = scaleStart - scaleEffect;
         if ([Node.EventType.TOUCH_END, Node.EventType.TOUCH_CANCEL].includes(type)) {
             this.scaleXY = scaleStart;
         }
     }, { touchTypes: TouchEvents.LONG_PRESS });
 
-    // 创建点击事件处理器
-    new TouchHandler(this, (sender, type) => {
+    // 创建点击事件处理器，保存引用以便后续清理
+    this._clickHandler = new TouchHandler(this, (sender, type) => {
         if (type === Node.EventType.TOUCH_END) fun(sender);
     }, {
         touchTypes: TouchEvents.CLICK,
@@ -183,6 +191,9 @@ class TouchHandler {
     private handleEvent(event: EventTouch) {
         if (this.node._touchEnabled === false) return;
 
+        // 点击锁检查：TOUCH_END 时若锁未释放则拦截
+        if (event.type === Node.EventType.TOUCH_END && !clickLock.canClick) return;
+
         // 事件传播控制
         event.propagationStopped = this.config.stopPropagation;
         event.preventSwallow = this.config.preventSwallow;
@@ -193,19 +204,22 @@ class TouchHandler {
         switch (type) {
             case Node.EventType.TOUCH_START:
                 this.handleTouchStart(event);
+                this.safeCallback(type, event);
                 break;
             case Node.EventType.TOUCH_MOVE:
                 this.handleTouchMove(event);
+                this.safeCallback(type, event);
                 break;
             case Node.EventType.TOUCH_END:
                 this.handleTouchEnd(event, now);
+                // handleTouchEnd 内部已触发 TOUCH_NOMOVE，此处只补发 TOUCH_END
+                this.safeCallback(type, event);
                 break;
             case Node.EventType.TOUCH_CANCEL:
                 this.handleTouchCancel();
+                this.safeCallback(type, event);
                 break;
         }
-
-        this.safeCallback(type, event);
     }
 
     private handleTouchStart(event: EventTouch) {
@@ -222,9 +236,13 @@ class TouchHandler {
             clickLock.lock(this.config.clickDelay);
         }
 
-        // 触发无移动点击
+        // 触发无移动点击（不再通过 safeCallback 重复触发）
         if (this.moveDistance.length() < 5) {
-            this.callback(this.node, Node.EventType.TOUCH_NOMOVE, event);
+            try {
+                this.callback(this.node, Node.EventType.TOUCH_NOMOVE, event);
+            } catch (error) {
+                console.error('Touch NOMOVE callback error:', error);
+            }
         }
 
         this.clearLongPressTimer();
@@ -261,7 +279,8 @@ class TouchHandler {
 }
 //触发指定事件
 Node.prototype.triggerTouch = function (type: string) {
-    if (!this._touchFunction) return null;
+    // 直接向节点派发触摸事件，不再依赖未赋值的 _touchFunction
+    if (!this.isValid) return;
     let event = new EventTouch([new Touch(0, 0)], false, type);
     event.type = type;
     this.emit(type, event, 'fromcode');

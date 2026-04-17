@@ -275,7 +275,8 @@ export default class virtualList extends Component {
         if (!this.isPageView) return;
 
         let endPos = event.getLocation();
-        let dt = (Date.now() - this._startTime) / 1000;
+        // dt 最小取 16ms，防止极快点击时除以 0 导致 velocity = Infinity
+        let dt = Math.max((Date.now() - this._startTime) / 1000, 0.016);
 
         let offset = 0;
         let axisSize = 0;
@@ -350,8 +351,9 @@ export default class virtualList extends Component {
             startIdx = Math.floor((startY - this._topGap) / this._itemStep) * this._colLineNum;
             endIdx = Math.ceil((endY - this._topGap) / this._itemStep) * this._colLineNum + (this._colLineNum - 1);
         } else {
-            let startX = -offset.x;
-            let endX = -offset.x + this._viewSize.width;
+            // 水平模式：getScrollOffset().x 已是正值（向右滚动为正），直接使用
+            let startX = offset.x;
+            let endX = offset.x + this._viewSize.width;
             startIdx = Math.floor((startX - this._leftGap) / this._itemStep) * this._colLineNum;
             endIdx = Math.ceil((endX - this._leftGap) / this._itemStep) * this._colLineNum + (this._colLineNum - 1);
         }

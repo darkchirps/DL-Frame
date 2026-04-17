@@ -20,7 +20,7 @@ export default class mosaic extends Component {
     updateMaterial() {
         if (this.material == null) return;
         if (this.materialTo == null) {
-            this.materialTo = new Material;
+            this.materialTo = new Material();
             this.materialTo.copy(this.material);
             this.node.sprite.customMaterial = this.materialTo;
         }
@@ -30,6 +30,12 @@ export default class mosaic extends Component {
     update(dt: number) {
         if (EDITOR && this.material != null) {
             this.updateMaterial();
+        }
+    }
+    onDestroy() {
+        if (this.materialTo) {
+            this.materialTo.destroy();
+            this.materialTo = null;
         }
     }
 }
